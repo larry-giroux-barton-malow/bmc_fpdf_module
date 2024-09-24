@@ -10,11 +10,13 @@ class bmcFPDF(FPDF):
         self.date = None
         self.description = None
 
-        #self.set_doc_option("core_fonts_encoding", "cp1252")
-
+        #add BM fonts
         self.add_font("Factoria Black","", "fonts\\Factoria-Black.ttf",uni=True)
-        
-        self.add_font("URW DIN","", "fonts\\urwdin-bold.ttf",uni=True)
+        self.add_font("Factoria Demi","", "fonts\\Factoria-Demi.ttf",uni=True)
+        self.add_font("URW DIN","", "fonts\\urwdin-regular.ttf",uni=True)
+        self.add_font("URW DIN Bold","", "fonts\\urwdin-bold.ttf",uni=True)
+        self.add_font("URW DIN BoldItalic","", "fonts\\urwdin-bolditalic.ttf",uni=True)
+        self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
 
     def header(self):
         # Factoria Black regular 15
