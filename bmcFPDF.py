@@ -2,18 +2,33 @@ from fpdf import FPDF
 
 
 class bmcFPDF(FPDF):
-    def header(self, title):
-        # Arial bold 15
-        self.set_font('Factoria Black', '', 15)
-        # Calculate width of title and position
-        w = self.get_string_width(title) + 6
-        self.set_x((210 - w) / 2)
-        # Colors of frame, background and text
+    
+    def __init__(self):
+        super().__init__()
+        self.title = None
+        self.subtitle = None
+        self.date = None
+        self.description = None
+
+    def header(self):
+        # Factoria Black regular 15
+        self.set_font('Factoria Black', '', 12)
+        # Colors of text
         self.set_color("blue","text")
-        # Thickness of frame (1 mm)
-        self.set_line_width(1)
         # Title
-        self.cell(w, 9, title, 1, 1, 'C', 1)
+        self.cell(self.get_string_width(self.title), 0, self.title, 0, 1, 'L')
+
+        # Factoria Black regular 15
+        self.set_font('URW DIN', '', 12)
+        # Subtitle
+        self.cell(self.get_string_width(self.subtitle), 0, self.subtitle, 0, 1, 'L')
+
+        self.ln()
+
+        # Date
+        self.set_font('URW DIN', '', 9)
+        self.cell(self.get_string_width(self.date), 0, self.date, 0, 1, 'L')
+
         # Line break
         self.ln(10)
 
@@ -81,3 +96,9 @@ class bmcFPDF(FPDF):
                 self.set_draw_color(c[0],c[1],c[2])
                 return
         self.set_text_color(c[0],c[1],c[2])
+
+    def report(self, title, subtitle, date, description):
+        self.title = title.strip() if isinstance(title, str) else "ERROR, title not found!"
+        self.subtitle = subtitle.strip() if isinstance(subtitle, str) else "ERROR, subtitle not found!"
+        self.date = date.strip() if isinstance(date, str) else "ERROR, date not found!"
+        self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
