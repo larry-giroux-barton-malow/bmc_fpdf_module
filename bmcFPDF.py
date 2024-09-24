@@ -10,24 +10,28 @@ class bmcFPDF(FPDF):
         self.date = None
         self.description = None
 
+        #self.set_doc_option("core_fonts_encoding", "cp1252")
+
+        self.add_font("Factoria Black","", "fonts\\Factoria-Black.ttf",uni=True)
+        
+        self.add_font("URW DIN","", "fonts\\urwdin-bold.ttf",uni=True)
+
     def header(self):
         # Factoria Black regular 15
         self.set_font('Factoria Black', '', 12)
         # Colors of text
         self.set_color("blue","text")
         # Title
-        self.cell(self.get_string_width(self.title), 0, self.title, 0, 1, 'L')
+        self.cell(self.get_string_width(self.title), 5, self.title, 0, 1, 'L')
 
         # Factoria Black regular 15
         self.set_font('URW DIN', '', 12)
         # Subtitle
-        self.cell(self.get_string_width(self.subtitle), 0, self.subtitle, 0, 1, 'L')
-
-        self.ln()
+        self.cell(self.get_string_width(self.subtitle), 5, self.subtitle, 0, 1, 'L')
 
         # Date
         self.set_font('URW DIN', '', 9)
-        self.cell(self.get_string_width(self.date), 0, self.date, 0, 1, 'L')
+        self.cell(self.get_string_width(self.date), 5, self.date, 0, 1, 'L')
 
         # Line break
         self.ln(10)
