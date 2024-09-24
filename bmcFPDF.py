@@ -10,6 +10,7 @@ class bmcFPDF(FPDF):
         self.subtitle = None
         self.date = None
         self.description = None
+        self.data = None
 
         #add BM fonts
         self.add_font("Factoria Black","", "fonts\\Factoria-Black.ttf",uni=True)
@@ -18,6 +19,16 @@ class bmcFPDF(FPDF):
         self.add_font("URW DIN Bold","", "fonts\\urwdin-bold.ttf",uni=True)
         self.add_font("URW DIN BoldItalic","", "fonts\\urwdin-bolditalic.ttf",uni=True)
         self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
+
+    def load_file(self, path = None):
+        try:
+            with open(path,"r") as f:
+                self.data = json.loads(f.read())
+        except Exception as e:
+            self.description = str(e)
+
+    def set_date(self,arg = None):
+        if arg in self.data: self.date = self.data[arg]
 
     def header(self):
         # Factoria Black regular 12
@@ -73,15 +84,22 @@ class bmcFPDF(FPDF):
         self.set_font('URW DIN', '', 10)
         self.multi_cell(0,0,desc)
 
-    def rygTable(self,file_name):
-        with open(file_name,'r') as f:
-            data = json.load(f)
-        with self.table() as table:
-            for data_row in data:
-                row = table.row()
-                for datum in data_row:
-                    row.cell(datum)
+    def rygTable(self,k1,k2,ryg):
 
+
+        # output headers (k1, and k2)
+        #     
+        self.set_color(ryg,"fill")
+        if ryg.lower()[0] in ["r","g"]:
+            self.set_color("white","text")
+        else:
+            self.set_color("black","text")
+        # output values (self.data[k1] and self.data[k2]) styling the first one with RYG and BOLD text 
+
+
+
+
+        self.set_color("black","text")
 
     def set_color(self,color = "black", type = "text"):
         c = [0,0,0]
@@ -99,6 +117,14 @@ class bmcFPDF(FPDF):
                 c = [165,186,201]
             elif color in ["slate blue","slate"]:
                 c = [122,151,171]
+            elif color in ["red","r"]:
+                c = [255,0,0]
+            elif color in ["yel","yellow","y"]:
+                c = [255,255,0]
+            elif color in ["green","grn","g"]:
+                c = [0,255,0]
+            elif color in ["white", "w"]:
+                c = [255,255,255]
         if isinstance(type,str):
             type = type.lower().strip()
             if type == "fill":
@@ -109,10 +135,10 @@ class bmcFPDF(FPDF):
                 return
         self.set_text_color(c[0],c[1],c[2])
 
-    def report(self, title, subtitle, date, description):
+    def report(self, title, subtitle, description):
         self.title = title.strip() if isinstance(title, str) else "ERROR, title not found!"
         self.subtitle = subtitle.strip() if isinstance(subtitle, str) else "ERROR, subtitle not found!"
-        self.date = date.strip() if isinstance(date, str) else "ERROR, date not found!"
+        self.date = self.date.strip() if isinstance(self.date, str) else "ERROR, date not found!"
         self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
         self.add_page()
 
