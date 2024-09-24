@@ -3,7 +3,7 @@ import json
 
 
 class bmcFPDF(FPDF):
-    
+
     def __init__(self):
         super().__init__()
         self.title = None
@@ -58,12 +58,20 @@ class bmcFPDF(FPDF):
         # Page number
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
 
-    def description(self,file_name):
-        #Description Header
+    def descriptionText(self,file_name):
+        desc = "Error, file not read"
+        try:
+            with open(file_name,'r') as f:
+                desc = f.read()
+        except Exception as e:
+            desc = "ERROR: file not read. " + str(e)
+            print(e)
+
         self.set_font('URW DIN Bold', '', 10)
-        with open(file_name,'r') as f:
-            desc = json.load(f)
-        self.multi_cell(self.get_string_width(desc), 5, desc, 0, 1, 'L')
+        self.cell(self.get_string_width("Description:"), 8, "Description:", 0, 1, 'L')
+
+        self.set_font('URW DIN', '', 10)
+        self.multi_cell(0,0,desc)
 
     def rygTable(self,file_name):
         with open(file_name,'r') as f:
@@ -106,4 +114,5 @@ class bmcFPDF(FPDF):
         self.subtitle = subtitle.strip() if isinstance(subtitle, str) else "ERROR, subtitle not found!"
         self.date = date.strip() if isinstance(date, str) else "ERROR, date not found!"
         self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
+        self.add_page()
 
