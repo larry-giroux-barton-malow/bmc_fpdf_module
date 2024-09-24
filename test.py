@@ -2,6 +2,6 @@ from bmcFPDF import bmcFPDF
 
 pdf = bmcFPDF()
 pdf.set_title("QO Summary Test")
-pdf.set_author('MoneyPenny')
-pdf.report("Test Report","Test Subtitle"," September 9, 2024", "test description")
+pdf.set_author('Quality Team')
+pdf.report("Project Quality Observation Summary","Project Name:"," September 24, 2024", "test description")
 pdf.output('QOTestReport.pdf', 'F')

@@ -19,21 +19,30 @@ class bmcFPDF(FPDF):
         self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
 
     def header(self):
-        # Factoria Black regular 15
+        # Factoria Black regular 12
         self.set_font('Factoria Black', '', 12)
         # Colors of text
         self.set_color("blue","text")
+
         # Title
         self.cell(self.get_string_width(self.title), 5, self.title, 0, 1, 'L')
 
-        # Factoria Black regular 15
+        # URW DIN regular 12
         self.set_font('URW DIN', '', 12)
+
         # Subtitle
         self.cell(self.get_string_width(self.subtitle), 5, self.subtitle, 0, 1, 'L')
 
+        self.ln(5)
+
         # Date
-        self.set_font('URW DIN', '', 9)
+        self.set_font('URW DIN Bold', '', 10)
+        self.cell(self.get_string_width("DATE"), 5, "DATE", 0, 1, 'L')
+        self.set_font('URW DIN', '', 10)
         self.cell(self.get_string_width(self.date), 5, self.date, 0, 1, 'L')
+
+        #BMC Logo
+        self.image("Barton-Malow-Company-Linear-Logo-Full-Color.jpg",160,10,40,0,"JPG")
 
         # Line break
         self.ln(10)
@@ -48,34 +57,11 @@ class bmcFPDF(FPDF):
         # Page number
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
 
-    def chapter_title(self, num, label):
-        # Arial 12
-        self.set_font('Arial', '', 12)
-        # Background color
-        self.set_fill_color(200, 220, 255)
-        # Title
-        self.cell(0, 6, 'Chapter %d : %s' % (num, label), 0, 1, 'L', 1)
-        # Line break
-        self.ln(4)
+    def description(self,description):
+        #Description Header
+        self.set_font('URW DIN Bold', '', 10)
+        self.cell(self.get_string_width("Description"), 5, "DATE", 0, 1, 'L')
 
-    def chapter_body(self, name):
-        # Read text file
-        with open(name, 'rb') as fh:
-            txt = fh.read().decode('latin-1')
-        # Times 12
-        self.set_font('Times', '', 12)
-        # Output justified text
-        self.multi_cell(0, 5, txt)
-        # Line break
-        self.ln()
-        # Mention in italics
-        self.set_font('', 'I')
-        self.cell(0, 5, '(end of excerpt)')
-
-    def print_chapter(self, num, title, name):
-        self.add_page()
-        self.chapter_title(num, title)
-        self.chapter_body(name)
 
     def set_color(self,color = "black", type = "text"):
         c = [0,0,0]
@@ -108,3 +94,4 @@ class bmcFPDF(FPDF):
         self.subtitle = subtitle.strip() if isinstance(subtitle, str) else "ERROR, subtitle not found!"
         self.date = date.strip() if isinstance(date, str) else "ERROR, date not found!"
         self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
+
