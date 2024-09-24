@@ -1,4 +1,5 @@
 from fpdf import FPDF
+import json
 
 
 class bmcFPDF(FPDF):
@@ -57,10 +58,21 @@ class bmcFPDF(FPDF):
         # Page number
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
 
-    def description(self,description):
+    def description(self,file_name):
         #Description Header
         self.set_font('URW DIN Bold', '', 10)
-        self.cell(self.get_string_width("Description"), 5, "DATE", 0, 1, 'L')
+        with open(file_name,'r') as f:
+            desc = json.load(f)
+        self.multi_cell(self.get_string_width(desc), 5, desc, 0, 1, 'L')
+
+    def rygTable(self,file_name):
+        with open(file_name,'r') as f:
+            data = json.load(f)
+        with self.table() as table:
+            for data_row in data:
+                row = table.row()
+                for datum in data_row:
+                    row.cell(datum)
 
 
     def set_color(self,color = "black", type = "text"):
