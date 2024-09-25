@@ -4,6 +4,7 @@ import json
 
 class bmcFPDF(FPDF):
 
+    #Initialize values and add fonts
     def __init__(self):
         super().__init__()
         self.title = None
@@ -20,6 +21,7 @@ class bmcFPDF(FPDF):
         self.add_font("URW DIN BoldItalic","", "fonts\\urwdin-bolditalic.ttf",uni=True)
         self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
 
+    #Method used to load data, takes relative path
     def load_file(self, path = None):
         try:
             with open(path,"r") as f:
@@ -27,9 +29,11 @@ class bmcFPDF(FPDF):
         except Exception as e:
             self.description = str(e)
 
+    #Method used to set data feild for report
     def set_date(self,arg = None):
         if arg in self.data: self.date = self.data[arg]
 
+    #Define the Header for each page
     def header(self):
         # Factoria Black regular 12
         self.set_font('Factoria Black', '', 12)
@@ -59,6 +63,7 @@ class bmcFPDF(FPDF):
         # Line break
         self.ln(10)
 
+    #Define the Footer for each page (not completed)
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
@@ -69,6 +74,7 @@ class bmcFPDF(FPDF):
         # Page number
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
 
+    #Method used to add the description section to a report
     def descriptionText(self,file_name):
         desc = "Error, file not read"
         try:
@@ -84,6 +90,7 @@ class bmcFPDF(FPDF):
         self.set_font('URW DIN', '', 10)
         self.multi_cell(0,0,desc)
 
+    #Method to create a 2x2 table with a ryg value in column 1 row 2 (not completed)
     def rygTable(self,k1,k2,ryg):
 
 
@@ -96,11 +103,10 @@ class bmcFPDF(FPDF):
             self.set_color("black","text")
         # output values (self.data[k1] and self.data[k2]) styling the first one with RYG and BOLD text 
 
-
-
-
         self.set_color("black","text")
 
+    #Use this method to set the color from defined list, 
+    # use "text" for text, "fill" for backround of cells, and "draw" for borders
     def set_color(self,color = "black", type = "text"):
         c = [0,0,0]
         if isinstance(color,str):
@@ -135,6 +141,7 @@ class bmcFPDF(FPDF):
                 return
         self.set_text_color(c[0],c[1],c[2])
 
+    #Create report and define the title, subtitle, and description
     def report(self, title, subtitle, description):
         self.title = title.strip() if isinstance(title, str) else "ERROR, title not found!"
         self.subtitle = subtitle.strip() if isinstance(subtitle, str) else "ERROR, subtitle not found!"
