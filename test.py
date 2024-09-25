@@ -55,6 +55,7 @@ pdf.rygTable(h1,h2,c)
 
 #Add Highlighted Observation
 #Do RYG logic
+pdf.QoHighlight()
 
 #Output document
 pdf.output('QOTestReport.pdf')

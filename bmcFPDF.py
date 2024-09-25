@@ -1,6 +1,8 @@
+# TODO: Update the descriptionText method
+# BUG: none identified 
+
 from fpdf import FPDF
 import json
-
 
 class bmcFPDF(FPDF):
 
@@ -38,7 +40,7 @@ class bmcFPDF(FPDF):
         # Factoria Black regular 12
         self.set_font('Factoria Black', '', 12)
         # Colors of text
-        self.set_color("blue","text")
+        self.set_color()
 
         # Title
         self.cell(self.get_string_width(self.title), 5, self.title, 0, 1, 'L')
@@ -69,7 +71,7 @@ class bmcFPDF(FPDF):
         self.set_y(-15)
         
         # Set color of Text
-        self.set_color("blue","text")
+        self.set_color()
         
         #Add report type to bottom corner
         self.set_font('URW DIN Bold', '', 10)
@@ -80,6 +82,8 @@ class bmcFPDF(FPDF):
         self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'R')
 
     #Method used to add the description section to a report
+    #(Need to Update: The method can check if the arg is an existing file.
+    # If it is, read the file, if not, dump the argument into the description box as raw text.)
     def descriptionText(self,file_name):
         desc = "Error, file not read"
         try:
@@ -89,6 +93,7 @@ class bmcFPDF(FPDF):
             desc = "ERROR: file not read. " + str(e)
             print(e)
 
+        self.set_color()
         self.set_font('URW DIN Bold', '', 10)
         self.cell(self.get_string_width("Description:"), 8, "Description:", 0, 1, 'L')
 
@@ -99,13 +104,13 @@ class bmcFPDF(FPDF):
     #Method to set consistent Header styling
     def setTableHeaderStyle(self):
         self.set_color("rebar","fill")
-        self.set_color("blue","text")
+        self.set_color()
         self.set_color("blue","draw")
         self.set_font("URW DIN Bold","",10)
 
     #Method to set consistent Body styling
     def setTableBodyStyle(self):
-        self.set_color("blue","text")
+        self.set_color()
         self.set_color("blue","draw")
         self.set_font("URW DIN","",10)
 
@@ -121,28 +126,36 @@ class bmcFPDF(FPDF):
         top = self.y
         self.x=40
         ReasoningCell = self.multi_cell(0, None, self.data[k2], 1, 'L',padding=2,output='HEIGHT')
-        
+
         self.y = top
         self.x=10
         self.set_color(ryg,"fill")
-        self.cell(30, ReasoningCell, self.data[k1], 1, 0,'L',True)
+        self.set_color("black","text")
+        self.set_font("URW DIN Bold",'',10)
+        self.cell(30, ReasoningCell, self.data[k1], 1, 0,'C',True)
         
-
         self.ln()
         self.ln(5)
 
-        # self.set_color(ryg,"fill")
-        # if ryg.lower()[0] in ["r","g"]:
-        #     self.set_color("white","text")
-        # else:
-        #     self.set_color("black","text")
-        # # output values (self.data[k1] and self.data[k2]) styling the first one with RYG and BOLD text 
+    #Method to create the QO Highlight Content
+    def QoHighlight(self):
+        self.set_font("Urw Din Bold",'',12)
+        self.set_color()
+        self.cell(text="Quality Observation Highlighted:")
+        self.ln(6)
 
-        self.set_color("black","text")
+        self.setTableHeaderStyle()
+        self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation"],border=1,align='C',fill=True,padding=2)
+        # self.cell(190,10,"cell 1",1)
+        
+        
+
+
 
     #Use this method to set the color from defined list, 
-    # use "text" for text, "fill" for backround of cells, and "draw" for borders
-    def set_color(self,color = "black", type = "text"):
+    #use "text" for text, "fill" for backround of cells, and "draw" for borders
+    #Default is blue text
+    def set_color(self,color = "blue", type = "text"):
         c = [0,0,0]
         if isinstance(color,str):
             color = color.lower().strip()
