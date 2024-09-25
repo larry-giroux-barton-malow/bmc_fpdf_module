@@ -63,16 +63,21 @@ class bmcFPDF(FPDF):
         # Line break
         self.ln(10)
 
-    #Define the Footer for each page (not completed)
+    #Define the Footer for each page
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
-        # Arial italic 8
-        self.set_font('Arial', 'I', 8)
-        # Text color in gray
-        self.set_text_color(128)
+        
+        # Set color of Text
+        self.set_color("blue","text")
+        
+        #Add report type to bottom corner
+        self.set_font('URW DIN Bold', '', 10)
+        self.cell(0, 10, 'NOTE: This Report is Generated Using AI', 0, 0, 'L')
+
         # Page number
-        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
+        self.set_font('URW DIN', '', 10)
+        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'R')
 
     #Method used to add the description section to a report
     def descriptionText(self,file_name):
