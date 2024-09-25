@@ -23,11 +23,35 @@ pdf.descriptionText("desc.txt")
 
 #Add RYG table (Risk Level)
 #Do RYG logic
-pdf.rygTable("data_quality","data_quality_reasoning","r")
+h1 = "Risk Level"
+h2 = "Risk Level Reasoning"
+c = None
+riskLevel = pdf.data[h1]
+riskLevel = riskLevel.lower().strip()
+if riskLevel == "low":
+    c = "green"
+elif riskLevel == "medium":
+    c = "yellow"
+else:
+    c = "red"
+
+#Add table
+pdf.rygTable(h1,h2,c)
 
 #Add RYG table (Data Quality)
 #Do RYG logic
-pdf.rygTable("data_quality","data_quality_reasoning","r")
+h1 = "Data Quality"
+h2 = "Data Quality Reasoning"
+c = None
+dataQuality = pdf.data[h1]
+dataQuality = dataQuality.lower().strip()
+if dataQuality == "high":
+    c = "green"
+elif dataQuality == "medium":
+    c = "yellow"
+else:
+    c = "red"
+pdf.rygTable(h1,h2,c)
 
 #Add Highlighted Observation
 #Do RYG logic

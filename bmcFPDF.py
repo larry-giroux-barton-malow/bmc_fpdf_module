@@ -61,9 +61,9 @@ class bmcFPDF(FPDF):
         self.image("Barton-Malow-Company-Linear-Logo-Full-Color.jpg",160,10,40,0,"JPG")
 
         # Line break
-        self.ln(10)
+        self.ln(5)
 
-    #Define the Footer for each page
+    #Define the Footer for each page ( can I added page # of # ?)
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
@@ -94,19 +94,49 @@ class bmcFPDF(FPDF):
 
         self.set_font('URW DIN', '', 10)
         self.multi_cell(0,0,desc)
+        self.ln(5)
+
+    #Method to set consistent Header styling
+    def setTableHeaderStyle(self):
+        self.set_color("rebar","fill")
+        self.set_color("blue","text")
+        self.set_color("blue","draw")
+        self.set_font("URW DIN Bold","",10)
+
+    #Method to set consistent Body styling
+    def setTableBodyStyle(self):
+        self.set_color("blue","text")
+        self.set_color("blue","draw")
+        self.set_font("URW DIN","",10)
 
     #Method to create a 2x2 table with a ryg value in column 1 row 2 (not completed)
     def rygTable(self,k1,k2,ryg):
-
-
         # output headers (k1, and k2)
-        #     
+        self.setTableHeaderStyle()
+        self.cell(30, 10, k1, 1, 0, 'C',True)
+        self.cell(0, 10, k2, 1, 0, 'C',True)
+        self.ln()
+
+        self.setTableBodyStyle()
+        top = self.y
+        self.x=40
+        ReasoningCell = self.multi_cell(0, None, self.data[k2], 1, 'L',padding=2,output='HEIGHT')
+        
+        self.y = top
+        self.x=10
         self.set_color(ryg,"fill")
-        if ryg.lower()[0] in ["r","g"]:
-            self.set_color("white","text")
-        else:
-            self.set_color("black","text")
-        # output values (self.data[k1] and self.data[k2]) styling the first one with RYG and BOLD text 
+        self.cell(30, ReasoningCell, self.data[k1], 1, 0,'L',True)
+        
+
+        self.ln()
+        self.ln(5)
+
+        # self.set_color(ryg,"fill")
+        # if ryg.lower()[0] in ["r","g"]:
+        #     self.set_color("white","text")
+        # else:
+        #     self.set_color("black","text")
+        # # output values (self.data[k1] and self.data[k2]) styling the first one with RYG and BOLD text 
 
         self.set_color("black","text")
 
