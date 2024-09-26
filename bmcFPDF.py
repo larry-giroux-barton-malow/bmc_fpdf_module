@@ -1,4 +1,5 @@
 # TODO: Update the descriptionText method
+#       Add "project name" field to JSON file
 # BUG: none identified 
 
 from fpdf import FPDF
@@ -79,19 +80,17 @@ class bmcFPDF(FPDF):
 
         # Page number
         self.set_font('URW DIN', '', 10)
-        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'R')
+        self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", 0, 0, 'R')
 
     #Method used to add the description section to a report
-    #(Need to Update: The method can check if the arg is an existing file.
-    # If it is, read the file, if not, dump the argument into the description box as raw text.)
-    def descriptionText(self,file_name):
-        desc = "Error, file not read"
-        try:
-            with open(file_name,'r') as f:
-                desc = f.read()
-        except Exception as e:
-            desc = "ERROR: file not read. " + str(e)
-            print(e)
+    def descriptionText(self,fileName=None):
+        desc = "Default Report Description"
+        if fileName != None:
+            try:
+                with open(fileName,'r') as f:
+                    desc = f.read()
+            except Exception as e:
+                desc = fileName
 
         self.set_color()
         self.set_font('URW DIN Bold', '', 10)
@@ -288,7 +287,7 @@ class bmcFPDF(FPDF):
         self.load_file(fileName)
 
         #Set document properties
-        self.set_title("QO Summary Test")
+        self.set_title("QO Summary Report")
         self.set_author('Quality Team')
 
         #Create document and add first page
