@@ -178,9 +178,46 @@ class bmcFPDF(FPDF):
         self.cell(w=30,h=10,text="Categorey",border=1,align='C',fill=True)
         self.cell(w=30,h=10,text="Location",border=1,align='C',fill=True)
         self.cell(w=70,h=10,text="Description",border=1,align='C',fill=True)
+        self.ln()
 
         #2nd Table Body
+        self.setTableBodyStyle()
+        top=self.y
+        height1=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Date"],border=0,align='C',fill=False,padding=2,output='Height')
+        self.y=top
         
+        height2=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Type"],border=0,align='C',fill=False,padding=2,output='Height',dry_run=True)
+        if height2>height1: height1=height2
+        
+        self.setTableBodyStyle()
+        self.y=top
+        self.x=70
+        height2=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Category"],border=0,align='C',fill=False,padding=2,output='Height')
+        if height2>height1: height1=height2
+        self.y=top
+        height2=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Location"],border=0,align='C',fill=False,padding=2,output='Height')
+        if height2>height1: height1=height2
+        self.y=top
+        height2=self.multi_cell(w=70,h=None,text=self.data["Highlighted Observation Description"],border=0,align='C',fill=False,padding=2,output='Height')
+        if height2>height1: height1=height2
+        self.y=top
+        self.x=10
+        self.cell(w=30,h=height1,border=1)
+
+        obsType = self.data["Highlighted Observation Type"]
+        if obsType.lower().strip() == "positive":
+            self.set_color("green","fill")
+        else:
+            self.set_color("red","fill")
+        self.set_color("black","text")
+        self.set_font("URW DIN Bold",'',10)
+        self.cell(w=30,h=height1,border=1,fill=1)
+        self.x=40
+        self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Type"],border=0,align='C',fill=False,padding=2,output='Height')
+        self.y=top
+        self.cell(w=30,h=height1,border=1)
+        self.cell(w=30,h=height1,border=1)
+        self.cell(w=70,h=height1,border=1)
 
         # self.cell(190,10,"cell 1",1)
         

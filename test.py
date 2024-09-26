@@ -15,7 +15,7 @@ pdf.set_title("QO Summary Test")
 pdf.set_author('Quality Team')
 
 #Create document and add first page
-pdf.set_date("period_description")
+pdf.set_date("Period Description")
 pdf.report("Project Quality Observation Summary","Project Name:", "test description")
 
 #Add description section
