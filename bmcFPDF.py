@@ -31,7 +31,7 @@ class bmcFPDF(FPDF):
         except Exception as e:
             self.description = str(e)
 
-    #Method used to set data feild for report
+    #Method used to set date field for report
     def set_date(self,arg = None):
         if arg in self.data: self.date = self.data[arg]
 
@@ -51,7 +51,7 @@ class bmcFPDF(FPDF):
         # Subtitle
         self.cell(self.get_string_width(self.subtitle), 5, self.subtitle, 0, 1, 'L')
 
-        self.ln(5)
+        self.ln(2)
 
         # Date
         self.set_font('URW DIN Bold', '', 10)
@@ -63,7 +63,7 @@ class bmcFPDF(FPDF):
         self.image("Barton-Malow-Company-Linear-Logo-Full-Color.jpg",160,10,40,0,"JPG")
 
         # Line break
-        self.ln(5)
+        self.ln(2)
 
     #Define the Footer for each page ( can I added page # of # ?)
     def footer(self):
@@ -185,10 +185,8 @@ class bmcFPDF(FPDF):
         top=self.y
         height1=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Date"],border=0,align='C',fill=False,padding=2,output='Height')
         self.y=top
-        
         height2=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Type"],border=0,align='C',fill=False,padding=2,output='Height',dry_run=True)
         if height2>height1: height1=height2
-        
         self.setTableBodyStyle()
         self.y=top
         self.x=70
@@ -203,7 +201,6 @@ class bmcFPDF(FPDF):
         self.y=top
         self.x=10
         self.cell(w=30,h=height1,border=1)
-
         obsType = self.data["Highlighted Observation Type"]
         if obsType.lower().strip() == "positive":
             self.set_color("green","fill")
@@ -218,12 +215,27 @@ class bmcFPDF(FPDF):
         self.cell(w=30,h=height1,border=1)
         self.cell(w=30,h=height1,border=1)
         self.cell(w=70,h=height1,border=1)
+        self.ln()
+        self.ln(5)
 
+        #Highlighted QO Image
+        imageTopY=self.y
+        imageHeight= 277 - imageTopY
+        
+        imageURL = self.data["Image URL"]
+        self.image(name=imageURL,h=imageHeight,keep_aspect_ratio=True)
         # self.cell(190,10,"cell 1",1)
-        
-        
 
-
+    #Method to creat ethe summary section
+    def QoSummary(self):
+        #Section Header
+        self.set_font("Urw Din Bold",'',12)
+        self.set_color()
+        self.cell(text="Report Summary:")
+        self.ln()
+        self.set_font("Urw Din",'',10)
+        self.multi_cell(w=0,text=self.data["Period Summary"])
+        self.ln(5)
 
     #Use this method to set the color from defined list, 
     #use "text" for text, "fill" for backround of cells, and "draw" for borders
@@ -270,3 +282,56 @@ class bmcFPDF(FPDF):
         self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
         self.add_page()
 
+    #One method for a QO Summary
+    def qoSummaryReport(self,fileName):
+        #Load JSON file 
+        self.load_file(fileName)
+
+        #Set document properties
+        self.set_title("QO Summary Test")
+        self.set_author('Quality Team')
+
+        #Create document and add first page
+        self.set_date("Period Description")
+        self.report("Project Quality Observation Summary","Project Name:", "test description")
+
+        #Add description section
+        self.descriptionText("desc.txt")
+
+        #Add summary
+        self.QoSummary()
+
+        #Add RYG table (Risk Level)
+        #Do RYG logic
+        h1 = "Risk Level"
+        h2 = "Risk Level Reasoning"
+        c = None
+        riskLevel = self.data[h1]
+        riskLevel = riskLevel.lower().strip()
+        if riskLevel == "low":
+            c = "green"
+        elif riskLevel == "medium":
+            c = "yellow"
+        else:
+            c = "red"
+
+        #Add table
+        self.rygTable(h1,h2,c)
+
+        #Add RYG table (Data Quality)
+        #Do RYG logic
+        h1 = "Data Quality"
+        h2 = "Data Quality Reasoning"
+        c = None
+        dataQuality = self.data[h1]
+        dataQuality = dataQuality.lower().strip()
+        if dataQuality == "high":
+            c = "green"
+        elif dataQuality == "medium":
+            c = "yellow"
+        else:
+            c = "red"
+        self.rygTable(h1,h2,c)
+
+        #Add Highlighted Observation
+        self.QoHighlight()
