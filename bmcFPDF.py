@@ -139,13 +139,49 @@ class bmcFPDF(FPDF):
 
     #Method to create the QO Highlight Content
     def QoHighlight(self):
+        #Section Header
         self.set_font("Urw Din Bold",'',12)
         self.set_color()
         self.cell(text="Quality Observation Highlighted:")
         self.ln(6)
 
+        #1st Table Header
         self.setTableHeaderStyle()
-        self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation"],border=1,align='C',fill=True,padding=2)
+        top = self.y
+        headerH=self.multi_cell(w=30,h=None,text="Highlighted Observation",border=1,align='C',fill=True,padding=2,output='HEIGHT')
+        self.y = top
+        self.cell(w=130,h=headerH,text="Reasoning",border=1,align='C',fill=True)
+        self.y = top
+        self.multi_cell(w=30,h=None,text="Highlight Pool Size",border=1,align='C',fill=True,padding=2)
+
+        #1st Table Body
+        self.setTableBodyStyle()
+        top=self.y
+        self.x=40
+        bodyH=self.multi_cell(w=130,h=None,text=self.data["Highlight Reasoning"],border=1,align='C',fill=False,padding=2,output='Height')
+        self.y=top
+        self.x=10
+        self.cell(w=30,h=bodyH,text=self.data["Highlighted Observation"],border=1,align='C',fill=False,link=self.data["Link"])
+        self.y=top
+        self.x=170
+        self.cell(w=30,h=bodyH,text=self.data["Highlight Pool Size"],border=1,align='C',fill=False)
+        self.ln()
+        self.ln(5)
+
+        #2nd Table Header
+        #Date, Type, Categorey, Location, Description
+        self.setTableHeaderStyle()
+        top=self.y
+        self.x=10
+        self.cell(w=30,h=10,text="Date",border=1,align='C',fill=True)
+        self.cell(w=30,h=10,text="Type",border=1,align='C',fill=True)
+        self.cell(w=30,h=10,text="Categorey",border=1,align='C',fill=True)
+        self.cell(w=30,h=10,text="Location",border=1,align='C',fill=True)
+        self.cell(w=70,h=10,text="Description",border=1,align='C',fill=True)
+
+        #2nd Table Body
+        
+
         # self.cell(190,10,"cell 1",1)
         
         
