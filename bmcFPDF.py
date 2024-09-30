@@ -285,6 +285,14 @@ class bmcFPDF(FPDF):
         self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
         self.add_page()
 
+    #JSON to tables
+    #Take file with repeated JSON Shema, list of objects
+    #Read one object, determine the keys
+    #Output table with keys as headers for all objects in file
+    #Python does not repect the order of the keys
+    #First args should be the list, (if it is a file, read file, otherwise try to parse as json; or if list just use list)
+    #Second args (list) should be header order, if empty use default
+
     #One method for a QO Summary
     def qoSummaryReport(self,fileName):
         #Load JSON file 
