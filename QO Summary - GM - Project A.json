@@ -1,0 +1,56 @@
+{
+    "error": null,
+    "report_name": "QO Summary - GM - Project A.json.json",
+    "ai_response_frame": {
+        "period_description": "2 days - September 24th to September 26th 2024",
+        "highlighted_observation": "382527",
+        "highlight_reasoning": "Observation 382527 highlights a positive Quality practice of covering plumbing to prevent foreign material exclusion (FME), which is an important construction quality issue.",
+        "risk_level": "Low",
+        "risk_level_reasoning": "Both observations are positive and do not indicate any major quality risks or rework required.",
+        "data_quality": "High",
+        "data_quality_reasoning": "The observations are clearly filled out with relevant information pertaining to construction quality practices.",
+        "period_summary": "During this 2-day period, two positive quality observations were made related to proper material handling and foreign material exclusion practices at the GM - Project A site. There were no negative observations indicating any significant construction quality issues.",
+        "highlight_pool_size": 2,
+        "highlight_link": "https://login.safety-reports.com/ObservationCorActTrack.aspx?u1=E193D323-66FD-4124-88F5-26ACAA040431&u2=1CA031DF-A56C-4B43-BE83-819B9E60AFD7&u3=316B738252777906C09-7424-4342-A697-CF38145CF9A3",
+        "highlight_image_url": "https://login.safety-reports.com/images/obs/2729/2024\\9\\pic_4e780c72-7c70-4f14-9411-295c145f8e57.jpg"
+    },
+    "ai_highlight": "382527",
+    "observations:": {
+        "380869": {
+            "Obs ID": "380869",
+            "Date/Time": "09/24/2024 12:33 AM EDT",
+            "Obs Type": "Positive",
+            "Severity": "",
+            "Description": "Steel touch up paint is white as specified",
+            "Status": "Closed",
+            "Location": "GM - Project A",
+            "Addl Loc": "",
+            "Submitted By": "Steven Kovarik (PD)",
+            "Category": "Quality - Code/Spec/Drawing Compliance",
+            "Cause": "",
+            "Assigned To": "GM - Project A Quality Resp. Parties (jason.boler@bmco.com)",
+            "Action Taken": "None",
+            "Follow Up": "",
+            "link": "https://login.safety-reports.com/ObservationCorActTrack.aspx?u1=B7A950F7-AEF7-45A5-A8D3-5A036023A3DA&u2=1CA031DF-A56C-4B43-BE83-819B9E60AFD7&u3=316B738086950E9232D-10D1-46D1-9E7F-A54E2E725AB7",
+            "image_url": "https://login.safety-reports.com/images/obs/2729/2024\\9\\pic_694ba753-1823-44b5-b0cc-2d132eae2eb1.jpg"
+        },
+        "382527": {
+            "Obs ID": "382527",
+            "Date/Time": "09/26/2024 02:41 PM EDT",
+            "Obs Type": "Positive",
+            "Severity": "",
+            "Description": "All plumbing is covered with tape.",
+            "Status": "Closed",
+            "Location": "GM - Project A",
+            "Addl Loc": "",
+            "Submitted By": "Jason Boler (Quality)",
+            "Category": "Quality - FME (Foreign Material Exclusion)",
+            "Cause": "",
+            "Assigned To": "GM - Project A Quality Resp. Parties (jason.boler@bmco.com)",
+            "Action Taken": "None",
+            "Follow Up": "",
+            "link": "https://login.safety-reports.com/ObservationCorActTrack.aspx?u1=E193D323-66FD-4124-88F5-26ACAA040431&u2=1CA031DF-A56C-4B43-BE83-819B9E60AFD7&u3=316B738252777906C09-7424-4342-A697-CF38145CF9A3",
+            "image_url": "https://login.safety-reports.com/images/obs/2729/2024\\9\\pic_4e780c72-7c70-4f14-9411-295c145f8e57.jpg"
+        }
+    }
+}
