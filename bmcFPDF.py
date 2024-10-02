@@ -72,15 +72,16 @@ class bmcFPDF(FPDF):
 
         # Date
         self.set_font('URW DIN Bold', '', 12)
-        self.cell(self.get_string_width("DATE:"), 5, "DATE:", 0, 1, 'L')
-        self.set_font('URW DIN', '', 10)
-        self.cell(self.get_string_width(self.date), 5, self.date, 0, 1, 'L')
+        self.cell(w=self.get_string_width("DATE:   "), h=5, text="DATE:", border=0, align='L')
+        self.set_font('URW DIN', '', 12)
+        self.cell(w=self.get_string_width(self.date), h=5, text=self.date, border=0, align='L')
+        self.ln()
 
         #BMC Logo
-        self.image("Barton-Malow-Company-Linear-Logo-Full-Color.jpg",160,10,40,0,"JPG")
+        self.image("Barton-Malow-Company-Linear-Logo-Full-Color.jpg",160,10,30,0,"JPG")
 
         # Line break
-        self.ln(2)
+        self.ln(4)
 
     #Define the Footer for each page
     def footer(self):
@@ -133,8 +134,8 @@ class bmcFPDF(FPDF):
     def rygTable(self,k1,k11,k2,k22,ryg):
         # output headers (k1, and k2)
         self.setTableHeaderStyle()
-        self.cell(30, 10, k1, 1, 0, 'C',True)
-        self.cell(0, 10, k2, 1, 0, 'C',True)
+        self.cell(w=30, h=6, text=k1, border=1, align='C', fill=True)
+        self.cell(w=0, h=6, text=k2, border=1, align='C', fill=True)
         self.ln()
 
         self.setTableBodyStyle()
@@ -185,8 +186,6 @@ class bmcFPDF(FPDF):
         self.ln()
         self.ln(5)
 
-        #Need to load Highlighted QO Data
-
         #2nd Table Header
         #Date, Type, Categorey, Location, Description
         self.setTableHeaderStyle()
@@ -194,7 +193,7 @@ class bmcFPDF(FPDF):
         self.x=10
         self.cell(w=30,h=10,text="Date",border=1,align='C',fill=True)
         self.cell(w=30,h=10,text="Type",border=1,align='C',fill=True)
-        self.cell(w=30,h=10,text="Categorey",border=1,align='C',fill=True)
+        self.cell(w=30,h=10,text="Category",border=1,align='C',fill=True)
         self.cell(w=30,h=10,text="Location",border=1,align='C',fill=True)
         self.cell(w=70,h=10,text="Description",border=1,align='C',fill=True)
         self.ln()
@@ -245,7 +244,7 @@ class bmcFPDF(FPDF):
         self.image(name=imageURL,h=imageHeight,x=Align.C)
         # self.cell(190,10,"cell 1",1)
 
-    #Method to creat ethe summary section
+    #Method to creat the summary section
     def QoSummary(self):
         #Section Header
         self.set_font("Urw Din Bold",'',12)
@@ -256,6 +255,107 @@ class bmcFPDF(FPDF):
         self.set_font("Urw Din",'',10)
         self.multi_cell(w=0,text=self.aiResponse.get("period_summary", "ERROR, Period Summary not found"))
         self.ln(3)
+
+    #Method to create Observations section
+    def QoSection(self,obsID):
+
+        #Get data out
+        obsID = str(obsID)
+        obs=self.observations.get(obsID)
+        obsDate = obs.get("Date/Time")
+        obsType = obs.get("Obs Type")
+        obsCat = obs.get("Category")
+        obsSev = obs.get("Severity")
+        if obsType.lower().strip() == "positive": obsSev = "N/A"
+        obsDesc = obs.get("Description")
+        obsStat = obs.get("Status")
+        obsImg = obs.get("image_url")
+
+        self.set_color()
+        self.set_font('URW DIN Bold', '', 12)
+        self.cell(w=self.get_string_width("Quality Observation: "),h=None,text="Quality Observation: ")
+        self.set_font('URW DIN', '', 12)
+        self.cell(w=self.get_string_width(obs.get("Obs ID")),h=None,text=obs.get("Obs ID"),link=obs.get("link"))
+        self.ln()
+        self.ln(2)
+
+        #Table Headers Row 1
+        self.setTableHeaderStyle()
+        self.cell(w=30, h=5, text="Date",border=1, fill=1, align='C')
+        self.cell(w=30, h=5, text="Type",border=1, fill=1, align='C')
+        self.cell(w=30, h=5, text="Severity",border=1, fill=1, align='C')
+        self.cell(w=100, h=5, text="Image", border=1, fill=1, align='C')
+        self.ln()
+        top=self.y
+
+        #Table Body Row 1
+        self.x=100
+        self.image(name=obsImg,w=100,h=95,keep_aspect_ratio=True)
+        self.y=top
+        self.cell(w=100,h=95,border=1)
+        
+        self.setTableBodyStyle()
+        self.y=top
+        self.x=10
+        height1=self.multi_cell(w=30,h=None,text=obsDate,border=0,align='C',fill=False,padding=2,output='Height',max_line_height=10)
+        self.y=top
+        height2=self.multi_cell(w=30,h=None,text=obsType,border=0,align='C',fill=False,padding=2,output='Height',dry_run=True)
+        if height2>height1: height1=height2
+        self.setTableBodyStyle()
+        self.y=top
+        self.x=70
+        height2=self.multi_cell(w=30,h=None,text=obsSev,border=0,align='C',fill=False,padding=2,output='Height',max_line_height=10)
+        if height2>height1: height1=height2
+        self.y=top
+        self.x=10
+        self.cell(w=30,h=10,border=1)
+        if obsType.lower().strip() == "positive":
+            self.set_color("green","fill")
+        else:
+            self.set_color("red","fill")
+        self.set_color("black","text")
+        self.set_font("URW DIN Bold",'',10)
+        self.cell(w=30,h=10,border=1,fill=1)
+        self.x=40
+        self.multi_cell(w=30,h=None,text=obsType,border=0,align='C',fill=False,padding=2,output='Height', max_line_height=10)
+        self.y=top
+        self.cell(w=30,h=10,border=1)
+        self.ln()
+
+        #Table Headers Row 2
+        self.setTableHeaderStyle()
+        self.cell(w=60, h=5, text="Category",border=1,fill=1,align='C')
+        self.cell(w=30, h=5, text="Status",border=1,fill=1,align='C')
+        self.ln()
+
+        #Table Body Row 2
+        self.setTableBodyStyle()
+        top=self.y
+        height1=self.multi_cell(w=60,h=None,text=obsCat,border=0,align='C',fill=False,padding=2,output='Height', max_line_height=10)
+        self.y=top
+        height2=self.multi_cell(w=30,h=None,text=obsStat,border=0,align='C',fill=False,padding=2,output='Height', max_line_height=10)
+        if height2>height1: height1=height2
+        self.y=top
+        self.x=10
+        self.cell(w=60,h=10,border=1)
+        self.cell(w=30,h=10,border=1)
+        self.ln()
+
+        #Table Headers Row 3
+        self.setTableHeaderStyle()
+        self.cell(w=90, h=5, text="Description",border=1,fill=1,align='C')
+        self.ln()
+
+        #Table Body Row 3
+        self.setTableBodyStyle()
+        top=self.y
+        heightDesc=self.multi_cell(w=90,h=None,text=obsDesc,border=0,align='C',fill=False,padding=2,output='Height')
+        self.y=top
+        self.x=10
+        self.cell(w=90,h=65,border=1)
+        
+        self.ln()
+        self.ln(5)
 
     #Use this method to set the color from defined list, 
     #use "text" for text, "fill" for backround of cells, and "draw" for borders
@@ -358,3 +458,11 @@ class bmcFPDF(FPDF):
 
         #Add Highlighted Observation
         self.QoHighlight()
+
+        #Add All observations
+        obsCount=0
+        for k in self.observations:
+            if obsCount %2 == 0: self.add_page()
+            self.QoSection(k)
+            obsCount+=1
+            
