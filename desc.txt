@@ -1,1 +1,1 @@
-This is a description of the report that lives in a .txt file.
+The Project Quality Observation Summary is a review of all Quality Observations over a certain time period, either for a single project or for all projects participating in the program. All Quality Observations for this period are reviewed and a summary is generated. A single Quality Observation is highlighted as particularly relevant to construction quality. The other observations are included for reference.

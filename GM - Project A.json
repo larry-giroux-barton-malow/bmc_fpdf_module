@@ -1,18 +1,18 @@
 {
     "error": null,
-    "report_name": "QO Summary - GM - Project A.json.json",
+    "report_name": "GM - Project A",
     "ai_response_frame": {
-        "period_description": "2 days - September 24th to September 26th 2024",
+        "period_description": "3 days - September 24th to September 26th 2024",
         "highlighted_observation": "382527",
-        "highlight_reasoning": "Observation 382527 highlights a positive Quality practice of covering plumbing to prevent foreign material exclusion (FME), which is an important construction quality issue.",
+        "highlight_reasoning": "Observation 382527 is directly relevant to construction quality as it discusses foreign material exclusion practices on the project site. This is an important aspect of maintaining quality standards during construction.",
         "risk_level": "Low",
-        "risk_level_reasoning": "Both observations are positive and do not indicate any major quality risks or rework required.",
+        "risk_level_reasoning": "The observations do not indicate any major quality issues or risks that would require significant rework. The issues noted are relatively minor and preventative measures appear to be in place.",
         "data_quality": "High",
-        "data_quality_reasoning": "The observations are clearly filled out with relevant information pertaining to construction quality practices.",
-        "period_summary": "During this 2-day period, two positive quality observations were made related to proper material handling and foreign material exclusion practices at the GM - Project A site. There were no negative observations indicating any significant construction quality issues.",
+        "data_quality_reasoning": "The observations are clear, relevant to construction quality, and provide sufficient details. There does not appear to be any junk or irrelevant data.",
+        "period_summary": "During this 3-day period, two quality observations were recorded, both positive in nature. The observations indicate that quality practices, such as proper material handling and foreign material exclusion, are being followed on the GM - Project A site. The overall risk level is low, and the data quality is high.",
         "highlight_pool_size": 2,
         "highlight_link": "https://login.safety-reports.com/ObservationCorActTrack.aspx?u1=E193D323-66FD-4124-88F5-26ACAA040431&u2=1CA031DF-A56C-4B43-BE83-819B9E60AFD7&u3=316B738252777906C09-7424-4342-A697-CF38145CF9A3",
-        "highlight_image_url": "https://login.safety-reports.com/images/obs/2729/2024\\9\\pic_4e780c72-7c70-4f14-9411-295c145f8e57.jpg"
+        "highlight_image_url": "https://login.safety-reports.com/images/obs/2729/2024/9/pic_4e780c72-7c70-4f14-9411-295c145f8e57.jpg"
     },
     "ai_highlight": "382527",
     "observations:": {
@@ -32,7 +32,7 @@
             "Action Taken": "None",
             "Follow Up": "",
             "link": "https://login.safety-reports.com/ObservationCorActTrack.aspx?u1=B7A950F7-AEF7-45A5-A8D3-5A036023A3DA&u2=1CA031DF-A56C-4B43-BE83-819B9E60AFD7&u3=316B738086950E9232D-10D1-46D1-9E7F-A54E2E725AB7",
-            "image_url": "https://login.safety-reports.com/images/obs/2729/2024\\9\\pic_694ba753-1823-44b5-b0cc-2d132eae2eb1.jpg"
+            "image_url": "https://login.safety-reports.com/images/obs/2729/2024/9/pic_694ba753-1823-44b5-b0cc-2d132eae2eb1.jpg"
         },
         "382527": {
             "Obs ID": "382527",
@@ -50,7 +50,7 @@
             "Action Taken": "None",
             "Follow Up": "",
             "link": "https://login.safety-reports.com/ObservationCorActTrack.aspx?u1=E193D323-66FD-4124-88F5-26ACAA040431&u2=1CA031DF-A56C-4B43-BE83-819B9E60AFD7&u3=316B738252777906C09-7424-4342-A697-CF38145CF9A3",
-            "image_url": "https://login.safety-reports.com/images/obs/2729/2024\\9\\pic_4e780c72-7c70-4f14-9411-295c145f8e57.jpg"
+            "image_url": "https://login.safety-reports.com/images/obs/2729/2024/9/pic_4e780c72-7c70-4f14-9411-295c145f8e57.jpg"
         }
     }
 }

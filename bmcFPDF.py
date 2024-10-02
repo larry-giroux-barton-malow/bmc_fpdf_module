@@ -1,5 +1,7 @@
 # TODO: 
-# Add "project name" field to JSON file
+# Add all high level objects to __init__ and data load methods
+# Change all self.data calls to self.aiResponse.get()
+# Update second table of Highlighted QO
 # 
 # BUG:
 # none identified
@@ -17,7 +19,12 @@ class bmcFPDF(FPDF):
         self.subtitle = None
         self.date = None
         self.description = None
-        self.data = None
+        self.error = None
+        self.reportName = None
+        self.aiResponse = {}
+        self.aiHighlight = None
+        self.observations = {}
+        self.highlightedObs = None
 
         #add BM fonts
         self.add_font("Factoria Black","", "fonts\\Factoria-Black.ttf",uni=True)
@@ -31,13 +38,19 @@ class bmcFPDF(FPDF):
     def load_file(self, path = None):
         try:
             with open(path,"r") as f:
-                self.data = json.loads(f.read())
+                data = json.loads(f.read())
+                self.error = data.get("error","ERROR, Error not found")
+                self.reportName = data.get("report_name","ERROR, Report Name not found")
+                self.aiResponse = data.get("ai_response_frame",{'error':'data not found'})
+                self.aiHighlight = data.get("ai_highlight","ERROR, AI Highlight not found")
+                self.observations = data.get("observations:",{'error':'observations not found'})
+                self.highlightedObs = self.observations.get(self.aiHighlight)
         except Exception as e:
             self.description = str(e)
 
     #Method used to set date field for report
     def set_date(self,arg = None):
-        if arg in self.data: self.date = self.data[arg]
+        self.date = self.aiResponse.get(arg,"ERROR, Date not found")
 
     #Define the Header for each page
     def header(self):
@@ -100,7 +113,7 @@ class bmcFPDF(FPDF):
         self.cell(self.get_string_width("Description:"), 8, "Description:", 0, 1, 'L')
 
         self.set_font('URW DIN', '', 10)
-        self.multi_cell(w=0,h=0,text=desc)
+        self.multi_cell(w=0,h=None,text=desc)
         self.ln(5)
 
     #Method to set consistent Header styling
@@ -117,7 +130,7 @@ class bmcFPDF(FPDF):
         self.set_font("URW DIN","",10)
 
     #Method to create a 2x2 table with a ryg value in column 1 row 2 (not completed)
-    def rygTable(self,k1,k2,ryg):
+    def rygTable(self,k1,k11,k2,k22,ryg):
         # output headers (k1, and k2)
         self.setTableHeaderStyle()
         self.cell(30, 10, k1, 1, 0, 'C',True)
@@ -127,14 +140,14 @@ class bmcFPDF(FPDF):
         self.setTableBodyStyle()
         top = self.y
         self.x=40
-        ReasoningCell = self.multi_cell(0, None, self.data[k2], 1, 'L',padding=2,output='HEIGHT')
+        ReasoningCell = self.multi_cell(0, None, self.aiResponse.get(k22, "ERROR, Reasoning not found"), 1, 'L',padding=2,output='HEIGHT')
 
         self.y = top
         self.x=10
         self.set_color(ryg,"fill")
         self.set_color("black","text")
         self.set_font("URW DIN Bold",'',10)
-        self.cell(30, ReasoningCell, self.data[k1], 1, 0,'C',True)
+        self.cell(30, ReasoningCell, self.aiResponse.get(k11, "ERROR, Data not found"), 1, 0,'C',True)
         
         self.ln()
         self.ln(5)
@@ -160,15 +173,19 @@ class bmcFPDF(FPDF):
         self.setTableBodyStyle()
         top=self.y
         self.x=40
-        bodyH=self.multi_cell(w=130,h=None,text=self.data["Highlight Reasoning"],border=1,align='C',fill=False,padding=2,output='Height')
+        bodyH=self.multi_cell(w=130,h=None,text=self.aiResponse.get("highlight_reasoning","ERROR, Highlight Reasoning not found"),border=1,align='C',fill=False,padding=2,output='Height')
         self.y=top
         self.x=10
-        self.cell(w=30,h=bodyH,text=self.data["Highlighted Observation"],border=1,align='C',fill=False,link=self.data["Link"])
+        self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link"))
         self.y=top
         self.x=170
-        self.cell(w=30,h=bodyH,text=self.data["Highlight Pool Size"],border=1,align='C',fill=False)
+        poolSize=self.aiResponse.get("highlight_pool_size", "ERROR, Highlight Pool Size not found")
+        poolSize = str(poolSize)
+        self.cell(w=30,h=bodyH,text=poolSize,border=1,align='C',fill=False)
         self.ln()
         self.ln(5)
+
+        #Need to load Highlighted QO Data
 
         #2nd Table Header
         #Date, Type, Categorey, Location, Description
@@ -185,25 +202,25 @@ class bmcFPDF(FPDF):
         #2nd Table Body
         self.setTableBodyStyle()
         top=self.y
-        height1=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Date"],border=0,align='C',fill=False,padding=2,output='Height')
+        height1=self.multi_cell(w=30,h=None,text=self.highlightedObs.get("Date/Time","ERROR, Date/Time not found"),border=0,align='C',fill=False,padding=2,output='Height')
         self.y=top
-        height2=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Type"],border=0,align='C',fill=False,padding=2,output='Height',dry_run=True)
+        height2=self.multi_cell(w=30,h=None,text=self.highlightedObs.get("Obs Type","ERROR, Obs Type not found"),border=0,align='C',fill=False,padding=2,output='Height',dry_run=True)
         if height2>height1: height1=height2
         self.setTableBodyStyle()
         self.y=top
         self.x=70
-        height2=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Category"],border=0,align='C',fill=False,padding=2,output='Height')
+        height2=self.multi_cell(w=30,h=None,text=self.highlightedObs.get("Category","ERROR, Category not found"),border=0,align='C',fill=False,padding=2,output='Height')
         if height2>height1: height1=height2
         self.y=top
-        height2=self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Location"],border=0,align='C',fill=False,padding=2,output='Height')
+        height2=self.multi_cell(w=30,h=None,text=self.highlightedObs.get("Location","ERROR, Location not found"),border=0,align='C',fill=False,padding=2,output='Height')
         if height2>height1: height1=height2
         self.y=top
-        height2=self.multi_cell(w=70,h=None,text=self.data["Highlighted Observation Description"],border=0,align='C',fill=False,padding=2,output='Height')
+        height2=self.multi_cell(w=70,h=None,text=self.highlightedObs.get("Description","ERROR, Description not found"),border=0,align='C',fill=False,padding=2,output='Height')
         if height2>height1: height1=height2
         self.y=top
         self.x=10
         self.cell(w=30,h=height1,border=1)
-        obsType = self.data["Highlighted Observation Type"]
+        obsType = self.highlightedObs.get("Obs Type")
         if obsType.lower().strip() == "positive":
             self.set_color("green","fill")
         else:
@@ -212,7 +229,7 @@ class bmcFPDF(FPDF):
         self.set_font("URW DIN Bold",'',10)
         self.cell(w=30,h=height1,border=1,fill=1)
         self.x=40
-        self.multi_cell(w=30,h=None,text=self.data["Highlighted Observation Type"],border=0,align='C',fill=False,padding=2,output='Height')
+        self.multi_cell(w=30,h=None,text=self.highlightedObs.get("Obs Type","ERROR, Observation Type not found"),border=0,align='C',fill=False,padding=2,output='Height')
         self.y=top
         self.cell(w=30,h=height1,border=1)
         self.cell(w=30,h=height1,border=1)
@@ -224,7 +241,7 @@ class bmcFPDF(FPDF):
         imageTopY=self.y
         imageHeight= 277 - imageTopY
         
-        imageURL = self.data["Image URL"]
+        imageURL = self.highlightedObs.get("image_url")
         self.image(name=imageURL,h=imageHeight,x=Align.C)
         # self.cell(190,10,"cell 1",1)
 
@@ -237,7 +254,7 @@ class bmcFPDF(FPDF):
         self.ln()
         self.ln(1)
         self.set_font("Urw Din",'',10)
-        self.multi_cell(w=0,text=self.data["Period Summary"])
+        self.multi_cell(w=0,text=self.aiResponse.get("period_summary", "ERROR, Period Summary not found"))
         self.ln(3)
 
     #Use this method to set the color from defined list, 
@@ -285,26 +302,17 @@ class bmcFPDF(FPDF):
         self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
         self.add_page()
 
-    #JSON to tables
-    #Take file with repeated JSON Shema, list of objects
-    #Read one object, determine the keys
-    #Output table with keys as headers for all objects in file
-    #Python does not repect the order of the keys
-    #First args should be the list, (if it is a file, read file, otherwise try to parse as json; or if list just use list)
-    #Second args (list) should be header order, if empty use default
-
     #One method for a QO Summary
     def qoSummaryReport(self,fileName):
         #Load JSON file 
         self.load_file(fileName)
 
         #Set document properties
-        self.set_title("QO Summary Report")
-        self.set_author('Quality Team')
+        self.set_author('BMC Quality')
 
         #Create document and add first page
-        self.set_date("Period Description")
-        self.report("Project Quality Observation Summary","Project Name:", "test description")
+        self.set_date("period_description")
+        self.report("Project Quality Observation Summary","Project Name: "+self.reportName, "test description")
 
         #Add description section
         self.descriptionText("desc.txt")
@@ -315,9 +323,11 @@ class bmcFPDF(FPDF):
         #Add RYG table (Risk Level)
         #Do RYG logic
         h1 = "Risk Level"
+        h11 = "risk_level"
         h2 = "Risk Level Reasoning"
+        h22 = "risk_level_reasoning"
         c = None
-        riskLevel = self.data[h1]
+        riskLevel = self.aiResponse.get(h11,"ERROR, Risk Level not found")
         riskLevel = riskLevel.lower().strip()
         if riskLevel == "low":
             c = "green"
@@ -327,14 +337,16 @@ class bmcFPDF(FPDF):
             c = "red"
 
         #Add table
-        self.rygTable(h1,h2,c)
+        self.rygTable(h1,h11,h2,h22,c)
 
         #Add RYG table (Data Quality)
         #Do RYG logic
         h1 = "Data Quality"
+        h11 = "data_quality"
         h2 = "Data Quality Reasoning"
+        h22 = "data_quality_reasoning"
         c = None
-        dataQuality = self.data[h1]
+        dataQuality = self.aiResponse.get(h11, "ERROR, Data Quality not found")
         dataQuality = dataQuality.lower().strip()
         if dataQuality == "high":
             c = "green"
@@ -342,7 +354,7 @@ class bmcFPDF(FPDF):
             c = "yellow"
         else:
             c = "red"
-        self.rygTable(h1,h2,c)
+        self.rygTable(h1,h11,h2,h22,c)
 
         #Add Highlighted Observation
         self.QoHighlight()
