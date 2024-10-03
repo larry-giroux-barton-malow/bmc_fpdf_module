@@ -1,7 +1,4 @@
 # TODO: 
-# Add all high level objects to __init__ and data load methods
-# Change all self.data calls to self.aiResponse.get()
-# Update second table of Highlighted QO
 # 
 # BUG:
 # none identified
@@ -35,7 +32,7 @@ class bmcFPDF(FPDF):
         self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
 
     #Method used to load data, takes relative path
-    def load_file(self, path = None):
+    def loadFile(self, path = None):
         try:
             with open(path,"r") as f:
                 data = json.loads(f.read())
@@ -49,7 +46,7 @@ class bmcFPDF(FPDF):
             self.description = str(e)
 
     #Method used to set date field for report
-    def set_date(self,arg = None):
+    def setDate(self,arg = None):
         self.date = self.aiResponse.get(arg,"ERROR, Date not found")
 
     #Define the Header for each page
@@ -177,9 +174,12 @@ class bmcFPDF(FPDF):
         bodyH=self.multi_cell(w=130,h=None,text=self.aiResponse.get("highlight_reasoning","ERROR, Highlight Reasoning not found"),border=1,align='C',fill=False,padding=2,output='Height')
         self.y=top
         self.x=10
+        self.set_font('URW DIN', 'U', 12)
+        self.set_color("craft")
         self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link"))
         self.y=top
         self.x=170
+        self.setTableBodyStyle()
         poolSize=self.aiResponse.get("highlight_pool_size", "ERROR, Highlight Pool Size not found")
         poolSize = str(poolSize)
         self.cell(w=30,h=bodyH,text=poolSize,border=1,align='C',fill=False)
@@ -239,10 +239,8 @@ class bmcFPDF(FPDF):
         #Highlighted QO Image
         imageTopY=self.y
         imageHeight= 277 - imageTopY
-        
         imageURL = self.highlightedObs.get("image_url")
         self.image(name=imageURL,h=imageHeight,x=Align.C)
-        # self.cell(190,10,"cell 1",1)
 
     #Method to creat the summary section
     def QoSummary(self):
@@ -258,7 +256,6 @@ class bmcFPDF(FPDF):
 
     #Method to create Observations section
     def QoSection(self,obsID):
-
         #Get data out
         obsID = str(obsID)
         obs=self.observations.get(obsID)
@@ -271,10 +268,12 @@ class bmcFPDF(FPDF):
         obsStat = obs.get("Status")
         obsImg = obs.get("image_url")
 
+        #Section Header
         self.set_color()
         self.set_font('URW DIN Bold', '', 12)
         self.cell(w=self.get_string_width("Quality Observation: "),h=None,text="Quality Observation: ")
-        self.set_font('URW DIN', '', 12)
+        self.set_font('URW DIN', 'U', 12)
+        self.set_color("craft")
         self.cell(w=self.get_string_width(obs.get("Obs ID")),h=None,text=obs.get("Obs ID"),link=obs.get("link"))
         self.ln()
         self.ln(2)
@@ -288,12 +287,13 @@ class bmcFPDF(FPDF):
         self.ln()
         top=self.y
 
-        #Table Body Row 1
+        #QO Image
         self.x=100
         self.image(name=obsImg,w=100,h=95,keep_aspect_ratio=True)
         self.y=top
         self.cell(w=100,h=95,border=1)
         
+        #Table Body Row 1
         self.setTableBodyStyle()
         self.y=top
         self.x=10
@@ -353,8 +353,8 @@ class bmcFPDF(FPDF):
         self.y=top
         self.x=10
         self.cell(w=90,h=65,border=1)
-        
         self.ln()
+
         self.ln(5)
 
     #Use this method to set the color from defined list, 
@@ -405,13 +405,13 @@ class bmcFPDF(FPDF):
     #One method for a QO Summary
     def qoSummaryReport(self,fileName):
         #Load JSON file 
-        self.load_file(fileName)
+        self.loadFile(fileName)
 
         #Set document properties
         self.set_author('BMC Quality')
 
         #Create document and add first page
-        self.set_date("period_description")
+        self.setDate("period_description")
         self.report("Project Quality Observation Summary","Project Name: "+self.reportName, "test description")
 
         #Add description section
