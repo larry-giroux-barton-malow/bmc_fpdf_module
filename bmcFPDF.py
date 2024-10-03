@@ -174,7 +174,7 @@ class bmcFPDF(FPDF):
         bodyH=self.multi_cell(w=130,h=None,text=self.aiResponse.get("highlight_reasoning","ERROR, Highlight Reasoning not found"),border=1,align='C',fill=False,padding=2,output='Height')
         self.y=top
         self.x=10
-        self.set_font('URW DIN', 'U', 12)
+        self.set_font('URW DIN', 'U', 10)
         self.set_color("craft")
         self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link"))
         self.y=top
