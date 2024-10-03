@@ -240,7 +240,7 @@ class bmcFPDF(FPDF):
         imageTopY=self.y
         imageHeight= 277 - imageTopY
         imageURL = self.highlightedObs.get("image_url")
-        self.image(name=imageURL,h=imageHeight,x=Align.C)
+        if imageURL is not None: self.image(name=imageURL,h=imageHeight,x=Align.C)
 
     #Method to creat the summary section
     def QoSummary(self):
@@ -289,7 +289,7 @@ class bmcFPDF(FPDF):
 
         #QO Image
         self.x=100
-        self.image(name=obsImg,w=100,h=95,keep_aspect_ratio=True)
+        if obsImg is not None: self.image(name=obsImg,w=100,h=95,keep_aspect_ratio=True)
         self.y=top
         self.cell(w=100,h=95,border=1)
         
