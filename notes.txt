@@ -1,0 +1,18 @@
+Possible idea for how to implement:
+
+
+jsonFolder=Load C:\Users\mkoski2\OneDrive - Barton Malow\Quality Observations\Quality Observations Reports\json\qo_summary_pdf_src path to JSON files
+pdfFolder=Load C:\Users\mkoski2\OneDrive - Barton Malow\AI Reports\Raw Reports path as path to save .pdfs to
+
+for f in json folder:
+jsonFileName = f.getName()?
+fileList.append(jsonFileName)
+
+for each item in list:
+    #Create Report
+    pdf.qoSummaryReport(currentFile)
+
+    #Output Report
+    pdfName = currentFile.replace(".json","") + ".pdf"
+    outputPath = "path to raw folder"+pdfName
+    pdf.output(outputPath)
