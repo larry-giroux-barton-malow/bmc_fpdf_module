@@ -13,7 +13,7 @@ for f in os.listdir(inputJsonFolder):
     inputFilePath = os.path.join(inputJsonFolder,f)
     print(inputFilePath)
     pdf.qoSummaryReport(inputFilePath)
-    outputFileName = f.replace(".json","")+".pdf"
+    outputFileName = "Quality Observations Summary - "+f.replace(".json","")+".pdf"
     print(outputFileName)
     outputFilePath = os.path.join(outputPdfFolder,outputFileName)
     pdf.output(outputFilePath)
