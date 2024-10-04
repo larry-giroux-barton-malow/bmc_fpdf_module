@@ -54,7 +54,7 @@ class bmcFPDF(FPDF):
         # Factoria Black regular 12
         self.set_font('Factoria Black', '', 12)
         # Colors of text
-        self.set_color()
+        self.setColor()
 
         # Title
         self.cell(self.get_string_width(self.title), 5, self.title, 0, 1, 'L')
@@ -86,7 +86,7 @@ class bmcFPDF(FPDF):
         self.set_y(-15)
         
         # Set color of Text
-        self.set_color()
+        self.setColor()
         
         #Add report type to bottom corner
         self.set_font('URW DIN Bold', '', 10)
@@ -106,7 +106,7 @@ class bmcFPDF(FPDF):
             except Exception as e:
                 desc = fileName
 
-        self.set_color()
+        self.setColor()
         self.set_font('URW DIN Bold', '', 12)
         self.cell(self.get_string_width("Description:"), 8, "Description:", 0, 1, 'L')
 
@@ -116,15 +116,15 @@ class bmcFPDF(FPDF):
 
     #Method to set consistent Header styling
     def setTableHeaderStyle(self):
-        self.set_color("rebar","fill")
-        self.set_color()
-        self.set_color("blue","draw")
+        self.setColor("rebar","fill")
+        self.setColor()
+        self.setColor("blue","draw")
         self.set_font("URW DIN Bold","",10)
 
     #Method to set consistent Body styling
     def setTableBodyStyle(self):
-        self.set_color()
-        self.set_color("blue","draw")
+        self.setColor()
+        self.setColor("blue","draw")
         self.set_font("URW DIN","",10)
 
     #Method to create a 2x2 table with a ryg value in column 1 row 2 (not completed)
@@ -142,8 +142,8 @@ class bmcFPDF(FPDF):
 
         self.y = top
         self.x=10
-        self.set_color(ryg,"fill")
-        self.set_color("black","text")
+        self.setColor(ryg,"fill")
+        self.setColor("black","text")
         self.set_font("URW DIN Bold",'',10)
         self.cell(30, ReasoningCell, self.aiResponse.get(k11, "ERROR, Data not found"), 1, 0,'C',True)
         
@@ -154,7 +154,7 @@ class bmcFPDF(FPDF):
     def QoHighlight(self):
         #Section Header
         self.set_font("Urw Din Bold",'',12)
-        self.set_color()
+        self.setColor()
         self.cell(text="Quality Observation Highlighted:")
         self.ln(6)
 
@@ -175,7 +175,7 @@ class bmcFPDF(FPDF):
         self.y=top
         self.x=10
         self.set_font('URW DIN', 'U', 10)
-        self.set_color("craft")
+        self.setColor("craft")
         self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link"))
         self.y=top
         self.x=170
@@ -221,10 +221,10 @@ class bmcFPDF(FPDF):
         self.cell(w=30,h=height1,border=1)
         obsType = self.highlightedObs.get("Obs Type")
         if obsType.lower().strip() == "positive":
-            self.set_color("green","fill")
+            self.setColor("green","fill")
         else:
-            self.set_color("red","fill")
-        self.set_color("black","text")
+            self.setColor("red","fill")
+        self.setColor("black","text")
         self.set_font("URW DIN Bold",'',10)
         self.cell(w=30,h=height1,border=1,fill=1)
         self.x=40
@@ -246,7 +246,7 @@ class bmcFPDF(FPDF):
     def QoSummary(self):
         #Section Header
         self.set_font("Urw Din Bold",'',12)
-        self.set_color()
+        self.setColor()
         self.cell(text="Report Summary:")
         self.ln()
         self.ln(1)
@@ -269,12 +269,19 @@ class bmcFPDF(FPDF):
         obsImg = obs.get("image_url")
 
         #Section Header
-        self.set_color()
+        self.setColor()
         self.set_font('URW DIN Bold', '', 12)
         self.cell(w=self.get_string_width("Quality Observation: "),h=None,text="Quality Observation: ")
         self.set_font('URW DIN', 'U', 12)
-        self.set_color("craft")
+        self.setColor("craft")
         self.cell(w=self.get_string_width(obs.get("Obs ID")),h=None,text=obs.get("Obs ID"),link=obs.get("link"))
+        
+        self.x=self.x+38
+        self.setColor()
+        self.set_font('URW DIN Bold', '', 12)
+        self.cell(w=self.get_string_width("Project: "),h=None,text="Project: ")
+        self.set_font('URW DIN', '', 12)
+        self.cell(w=self.get_string_width(obs.get("Location")),h=None,text=obs.get("Location"))
         self.ln()
         self.ln(2)
 
@@ -310,10 +317,10 @@ class bmcFPDF(FPDF):
         self.x=10
         self.cell(w=30,h=10,border=1)
         if obsType.lower().strip() == "positive":
-            self.set_color("green","fill")
+            self.setColor("green","fill")
         else:
-            self.set_color("red","fill")
-        self.set_color("black","text")
+            self.setColor("red","fill")
+        self.setColor("black","text")
         self.set_font("URW DIN Bold",'',10)
         self.cell(w=30,h=10,border=1,fill=1)
         self.x=40
@@ -337,8 +344,8 @@ class bmcFPDF(FPDF):
         if height2>height1: height1=height2
         self.y=top
         self.x=10
-        self.cell(w=60,h=10,border=1)
-        self.cell(w=30,h=10,border=1)
+        self.cell(w=60,h=15,border=1)
+        self.cell(w=30,h=15,border=1)
         self.ln()
 
         #Table Headers Row 3
@@ -352,7 +359,7 @@ class bmcFPDF(FPDF):
         heightDesc=self.multi_cell(w=90,h=None,text=obsDesc,border=0,align='C',fill=False,padding=2,output='Height')
         self.y=top
         self.x=10
-        self.cell(w=90,h=65,border=1)
+        self.cell(w=90,h=60,border=1)
         self.ln()
 
         self.ln(5)
@@ -360,7 +367,7 @@ class bmcFPDF(FPDF):
     #Use this method to set the color from defined list, 
     #use "text" for text, "fill" for backround of cells, and "draw" for borders
     #Default is blue text
-    def set_color(self,color = "blue", type = "text"):
+    def setColor(self,color = "blue", type = "text"):
         c = [0,0,0]
         if isinstance(color,str):
             color = color.lower().strip()
@@ -465,4 +472,3 @@ class bmcFPDF(FPDF):
             if obsCount %2 == 0: self.add_page()
             self.QoSection(k)
             obsCount+=1
-            
