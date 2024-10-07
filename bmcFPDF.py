@@ -5,6 +5,7 @@
 
 from fpdf import FPDF
 from fpdf import Align
+from datetime import date
 import json
 
 class bmcFPDF(FPDF):
@@ -46,8 +47,9 @@ class bmcFPDF(FPDF):
             self.description = str(e)
 
     #Method used to set date field for report
-    def setDate(self,arg = None):
-        self.date = self.aiResponse.get(arg,"ERROR, Date not found")
+    def setDate(self):
+        self.date = date.today()
+        self.date = self.date.strftime("%m/%d/%Y")
 
     #Define the Header for each page
     def header(self):
@@ -69,7 +71,7 @@ class bmcFPDF(FPDF):
 
         # Date
         self.set_font('URW DIN Bold', '', 12)
-        self.cell(w=self.get_string_width("DATE:   "), h=5, text="DATE:", border=0, align='L')
+        self.cell(w=self.get_string_width("Date Generated:  "), h=5, text="Date Generated:  ", border=0, align='L')
         self.set_font('URW DIN', '', 12)
         self.cell(w=self.get_string_width(self.date), h=5, text=self.date, border=0, align='L')
         self.ln()
@@ -405,7 +407,6 @@ class bmcFPDF(FPDF):
     def report(self, title, subtitle, description):
         self.title = title.strip() if isinstance(title, str) else "ERROR, title not found!"
         self.subtitle = subtitle.strip() if isinstance(subtitle, str) else "ERROR, subtitle not found!"
-        self.date = self.date.strip() if isinstance(self.date, str) else "ERROR, date not found!"
         self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
         self.add_page()
 
@@ -418,7 +419,7 @@ class bmcFPDF(FPDF):
         self.set_author('BMC Quality')
 
         #Create document and add first page
-        self.setDate("period_description")
+        self.setDate()
         self.report("Project Quality Observation Summary","Project Name: "+self.reportName, "test description")
 
         #Add description section
