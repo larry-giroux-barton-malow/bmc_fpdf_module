@@ -1,7 +1,5 @@
 
 import os
-from pathlib import Path
-
 from bmcFPDF import bmcFPDF
 
 inputJsonFolder = r"C:\Users\mkoski2\OneDrive - Barton Malow\Quality Observations\Quality Observations Reports\json\qo_summary_pdf_src"
