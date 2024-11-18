@@ -29,7 +29,6 @@ class bmcFPDF(FPDF):
         self.aiHighlight = None
         self.observations = {}
         self.highlightedObs = None
-<<<<<<< HEAD
         self.data  = None
         self.source = None
 
@@ -42,22 +41,6 @@ class bmcFPDF(FPDF):
         self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
 
 #Method used to load data, takes relative path
-=======
-        self.fileDir = os.path.dirname(__file__)
-
-        # Define the main path
-        font_folder = os.path.join(self.fileDir, 'fonts')
-
-        # Add BM fonts
-        self.add_font("Factoria Black", "",     os.path.join(font_folder, "Factoria-Black.ttf"), uni=True)
-        self.add_font("Factoria Demi", "",      os.path.join(font_folder, "Factoria-Demi.ttf"), uni=True)
-        self.add_font("URW DIN", "",            os.path.join(font_folder, "urwdin-regular.ttf"), uni=True)
-        self.add_font("URW DIN Bold", "",       os.path.join(font_folder, "urwdin-bold.ttf"), uni=True)
-        self.add_font("URW DIN BoldItalic", "", os.path.join(font_folder, "urwdin-bolditalic.ttf"), uni=True)
-        self.add_font("URW DIN Italic", "",     os.path.join(font_folder, "urwdin-italic.ttf"), uni=True)
-        
-    #Method used to load data, takes absolute or relative path
->>>>>>> e0f7540ccdfadebfdcf53b5bab6e44620aecb3e7
     def loadFile(self, path = None):
         try:
             with open(path,"r") as f:
