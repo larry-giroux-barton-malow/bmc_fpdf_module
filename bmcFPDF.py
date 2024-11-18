@@ -593,11 +593,11 @@ class bmcFPDF(FPDF):
         return qrImg
 
 #method for an API Report
-    def APIReport(self,fileName):
+    def APIReport(self):
         self.source = "API"
 
         #Load JSON file 
-        self.APILoadFile(fileName)
+        #self.APILoadFile(fileName)
 
         #Set document properties
         self.set_author('CQT API')
