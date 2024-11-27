@@ -33,20 +33,17 @@ class bmcFPDF(FPDF):
         self.highlightedObs = None
         self.data  = None
         self.source = None
-<<<<<<< HEAD
         self.fileDir = ""
-=======
         self.userHome = os.path.expanduser('~')
->>>>>>> 540297c6aff96f037fb9b39824707b80444354fa
 
     #add BM fonts
 
-        self.add_font("Factoria Black","", "bmc_fpdf_module\\fonts\\Factoria-Black.ttf",uni=True)
-        self.add_font("Factoria Demi","", "bmc_fpdf_module\\fonts\\Factoria-Demi.ttf",uni=True)
-        self.add_font("URW DIN","", "bmc_fpdf_module\\fonts\\urwdin-regular.ttf",uni=True)
-        self.add_font("URW DIN Bold","", "bmc_fpdf_module\\fonts\\urwdin-bold.ttf",uni=True)
-        self.add_font("URW DIN BoldItalic","", "bmc_fpdf_module\\fonts\\urwdin-bolditalic.ttf",uni=True)
-        self.add_font("URW DIN Italic","", "bmc_fpdf_module\\fonts\\urwdin-italic.ttf",uni=True)
+        self.add_font("Factoria Black","", "fonts\\Factoria-Black.ttf",uni=True)
+        self.add_font("Factoria Demi","", "fonts\\Factoria-Demi.ttf",uni=True)
+        self.add_font("URW DIN","", "fonts\\urwdin-regular.ttf",uni=True)
+        self.add_font("URW DIN Bold","", "fonts\\urwdin-bold.ttf",uni=True)
+        self.add_font("URW DIN BoldItalic","", "fonts\\urwdin-bolditalic.ttf",uni=True)
+        self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
 
 #Method used to load data, takes relative path
     def loadFile(self, path = None):
@@ -105,7 +102,7 @@ class bmcFPDF(FPDF):
         self.ln()
 
         #BMC Logo
-        self.image(os.path.normpath(os.path.join("bmc_fpdf_module\\Barton-Malow-Company-Linear-Logo-Full-Color.jpg")),160,10,30,0,"JPG")
+        self.image(os.path.normpath(os.path.join("Barton-Malow-Company-Linear-Logo-Full-Color.jpg")),160,10,30,0,"JPG")
 
         # Line break
         self.ln(4)
