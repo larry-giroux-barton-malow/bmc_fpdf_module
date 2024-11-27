@@ -11,6 +11,8 @@ from datetime import date
 import json
 import qrcode
 from PIL import Image, ImageDraw
+import base64
+import io
 
 from sqlalchemy import false
 
@@ -31,6 +33,7 @@ class bmcFPDF(FPDF):
         self.highlightedObs = None
         self.data  = None
         self.source = None
+        self.fileDir = ""
 
     #add BM fonts
         self.add_font("Factoria Black","", "fonts\\Factoria-Black.ttf",uni=True)
@@ -596,8 +599,8 @@ class bmcFPDF(FPDF):
     def APIReport(self):
         self.source = "API"
 
-        #Load JSON file 
-        #self.APILoadFile(fileName)
+        #Load JSON file, uncomment line below for testing only 
+        self.APILoadFile("api_test.json")
 
         #Set document properties
         self.set_author('CQT API')
@@ -614,16 +617,22 @@ class bmcFPDF(FPDF):
             elif isinstance(item, str):
                 self.printParagraph(item)
             elif isinstance(item,dict):
+                alignments = {"L": Align.L, "C": Align.C, "R": Align.R}
                 for k, v in item.items():
                     if k=="QRLink":
-                        alignments = {"L": Align.L, "C": Align.C, "R": Align.R}
                         alignVar = alignments.get(v[1])
                         self.image(x=alignVar,name=self.generateQRwithLogo(link=v[0]),h=40)
                         self.ln(3)
                     elif k=="ImageLink":
-                        alignments = {"L": Align.L, "C": Align.C, "R": Align.R}
                         alignVar = alignments.get(v[1])
                         self.image(x=alignVar,name=v[0],h=40)
+                        self.ln(3)
+                    elif k=="ImageB64":
+                        alignVar = alignments.get(v[1])
+                        b64Image = v[0]
+                        imageData = base64.b64decode(b64Image)
+                        imageBytes = io.BytesIO(imageData)
+                        self.image(x=alignVar,name=imageBytes,h=40)
                         self.ln(3)
                     elif k=="URLLink":
                         self.set_font('URW DIN', 'U', 12)
