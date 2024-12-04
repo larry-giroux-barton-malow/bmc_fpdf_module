@@ -602,7 +602,7 @@ class bmcFPDF(FPDF):
         self.source = "API"
 
         #Load JSON file, uncomment line below for testing only 
-        self.APILoadFile("api_test.json")
+        # self.APILoadFile("api_test.json")
 
         #Set document properties
         self.set_author('CQT API')
