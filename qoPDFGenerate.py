@@ -8,11 +8,14 @@ outputPdfFolder     = os.path.normpath(os.path.join(userHome,"OneDrive - Barton 
 
 for f in os.listdir(inputJsonFolder):
 
-    pdf = bmcFPDF()
-    inputFilePath = os.path.join(inputJsonFolder,f)
-    print(inputFilePath)
-    pdf.qoSummaryReport(inputFilePath)
-    outputFileName = "Quality Observations Summary - "+f.replace(".json","")+".pdf"
-    print(outputFileName)
-    outputFilePath = os.path.join(outputPdfFolder,outputFileName)
-    pdf.output(outputFilePath)
+    try:
+        pdf = bmcFPDF()
+        inputFilePath = os.path.join(inputJsonFolder,f)
+        print(inputFilePath)
+        pdf.qoSummaryReport(inputFilePath)
+        outputFileName = "Quality Observations Summary - "+f.replace(".json","")+".pdf"
+        print(outputFileName)
+        outputFilePath = os.path.join(outputPdfFolder,outputFileName)
+        pdf.output(outputFilePath)
+    except Exception as e:
+        print(e)
