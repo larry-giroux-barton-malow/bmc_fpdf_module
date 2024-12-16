@@ -5,12 +5,20 @@
 import os
 from fpdf import FPDF
 from fpdf import Align
+from fpdf.fonts import FontFace
+from fpdf.enums import VAlign
 from datetime import date
 import json
+import qrcode
+from PIL import Image, ImageDraw
+import base64
+import io
+
+from sqlalchemy import false
 
 class bmcFPDF(FPDF):
 
-    #Initialize values and add fonts
+#Initialize values and add fonts
     def __init__(self):
         super().__init__()
         self.title = None
@@ -22,21 +30,22 @@ class bmcFPDF(FPDF):
         self.aiResponse = {}
         self.aiHighlight = None
         self.observations = {}
-        self.highlightedObs = None
-        self.fileDir = os.path.dirname(__file__)
+        self.highlightedObs = {}
+        self.data  = None
+        self.source = None
+        self.fileDir = ""
+        self.userHome = os.path.expanduser('~')
 
-        # Define the main path
-        font_folder = os.path.join(self.fileDir, 'fonts')
+    #add BM fonts
 
-        # Add BM fonts
-        self.add_font("Factoria Black", "",     os.path.join(font_folder, "Factoria-Black.ttf"), uni=True)
-        self.add_font("Factoria Demi", "",      os.path.join(font_folder, "Factoria-Demi.ttf"), uni=True)
-        self.add_font("URW DIN", "",            os.path.join(font_folder, "urwdin-regular.ttf"), uni=True)
-        self.add_font("URW DIN Bold", "",       os.path.join(font_folder, "urwdin-bold.ttf"), uni=True)
-        self.add_font("URW DIN BoldItalic", "", os.path.join(font_folder, "urwdin-bolditalic.ttf"), uni=True)
-        self.add_font("URW DIN Italic", "",     os.path.join(font_folder, "urwdin-italic.ttf"), uni=True)
-        
-    #Method used to load data, takes absolute or relative path
+        self.add_font("Factoria Black","", "fonts\\Factoria-Black.ttf",uni=True)
+        self.add_font("Factoria Demi","", "fonts\\Factoria-Demi.ttf",uni=True)
+        self.add_font("URW DIN","", "fonts\\urwdin-regular.ttf",uni=True)
+        self.add_font("URW DIN Bold","", "fonts\\urwdin-bold.ttf",uni=True)
+        self.add_font("URW DIN BoldItalic","", "fonts\\urwdin-bolditalic.ttf",uni=True)
+        self.add_font("URW DIN Italic","", "fonts\\urwdin-italic.ttf",uni=True)
+
+#Method used to load data, takes relative path
     def loadFile(self, path = None):
         try:
             with open(path,"r") as f:
@@ -46,16 +55,28 @@ class bmcFPDF(FPDF):
                 self.aiResponse = data.get("ai_response_frame",{'error':'data not found'})
                 self.aiHighlight = data.get("ai_highlight","ERROR, AI Highlight not found")
                 self.observations = data.get("observations:",{'error':'observations not found'})
-                self.highlightedObs = self.observations.get(self.aiHighlight)
+                self.highlightedObs = self.observations.get(self.aiHighlight,{})
         except Exception as e:
             self.description = str(e)
 
-    #Method used to set date field for report
+#Method to load API data file, takes relative path
+    def APILoadFile(self, path = None):
+        try:
+            with open(path,"r") as f:
+                data = json.loads(f.read())
+                self.title = data.get("title","ERROR, title not found")
+                self.subtitle = data.get("subtitle","ERROR, subtitle not found")
+                self.date = data.get("date","ERROR, date not found")
+                self.data = data['data']
+        except Exception as e:
+            self.description = str(e)
+
+#Method used to set date field for report
     def setDate(self):
         self.date = date.today()
         self.date = self.date.strftime("%m/%d/%Y")
 
-    #Define the Header for each page
+#Define the Header for each page
     def header(self):
         # Factoria Black regular 12
         self.set_font('Factoria Black', '', 12)
@@ -81,12 +102,13 @@ class bmcFPDF(FPDF):
         self.ln()
 
         #BMC Logo
-        self.image(os.path.normpath(os.path.join(self.fileDir,"Barton-Malow-Company-Linear-Logo-Full-Color.jpg")),160,10,30,0,"JPG")
+        self.image(os.path.normpath(os.path.join("Barton-Malow-Company-Linear-Logo-Full-Color.jpg")),160,10,30,0,"JPG")
 
         # Line break
         self.ln(4)
 
-    #Define the Footer for each page
+#Define the Footer for each page
+#Must set self.source before add_page is called for the report to get the correct footer text
     def footer(self):
         # Position at 1.5 cm from bottom
         self.set_y(-15)
@@ -96,13 +118,17 @@ class bmcFPDF(FPDF):
         
         #Add report type to bottom corner
         self.set_font('URW DIN Bold', '', 10)
-        self.cell(0, 10, 'NOTE: This Report is Generated Using AI', 0, 0, 'L')
+        if self.source == "QO":
+            self.cell(0, 10, 'NOTE: This Report is Generated Using AI', 0, 0, 'L')
+        if self.source == "API":
+            self.set_font('URW DIN', '', 10)
+            self.cell(0, 10, 'NOTE: This Report is Generated Using The CQT API', 0, 0, 'L')
 
         # Page number
         self.set_font('URW DIN', '', 10)
         self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", 0, 0, 'R')
 
-    #Method used to add the description section to a report
+#Method used to add the description section to a report
     def descriptionText(self,fileName=None):
         desc = "This is a report generated by the Quality Team"
         if fileName != None:
@@ -120,20 +146,20 @@ class bmcFPDF(FPDF):
         self.multi_cell(w=0,h=None,text=desc)
         self.ln(5)
 
-    #Method to set consistent Header styling
+#Method to set consistent Header styling
     def setTableHeaderStyle(self):
         self.setColor("rebar","fill")
         self.setColor()
         self.setColor("blue","draw")
         self.set_font("URW DIN Bold","",10)
 
-    #Method to set consistent Body styling
+#Method to set consistent Body styling
     def setTableBodyStyle(self):
         self.setColor()
         self.setColor("blue","draw")
         self.set_font("URW DIN","",10)
 
-    #Method to create a 2x2 table with a ryg value in column 1 row 2 (not completed)
+#Method to create a 2x2 table with a ryg value in column 1 row 2 (not completed)
     def rygTable(self,k1,k11,k2,k22,ryg):
         # output headers (k1, and k2)
         self.setTableHeaderStyle()
@@ -156,7 +182,7 @@ class bmcFPDF(FPDF):
         self.ln()
         self.ln(5)
 
-    #Method to create the QO Highlight Content
+#Method to create the QO Highlight Content
     def QoHighlight(self):
         #Section Header
         self.set_font("Urw Din Bold",'',12)
@@ -182,7 +208,7 @@ class bmcFPDF(FPDF):
         self.x=10
         self.set_font('URW DIN', 'U', 10)
         self.setColor("craft")
-        self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link"))
+        self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link",""))
         self.y=top
         self.x=170
         self.setTableBodyStyle()
@@ -225,7 +251,7 @@ class bmcFPDF(FPDF):
         self.y=top
         self.x=10
         self.cell(w=30,h=height1,border=1)
-        obsType = self.highlightedObs.get("Obs Type")
+        obsType = self.highlightedObs.get("Obs Type","")
         if obsType.lower().strip() == "positive":
             self.setColor("green","fill")
         else:
@@ -245,10 +271,10 @@ class bmcFPDF(FPDF):
         #Highlighted QO Image
         imageTopY=self.y
         imageHeight= 277 - imageTopY
-        imageURL = self.highlightedObs.get("image_url")
+        imageURL = self.highlightedObs.get("image_url",None)
         if imageURL is not None: self.image(name=imageURL,h=imageHeight,x=Align.C)
 
-    #Method to creat the summary section
+#Method to creat the summary section
     def QoSummary(self):
         #Section Header
         self.set_font("Urw Din Bold",'',12)
@@ -260,7 +286,7 @@ class bmcFPDF(FPDF):
         self.multi_cell(w=0,text=self.aiResponse.get("period_summary", "ERROR, Period Summary not found"))
         self.ln(3)
 
-    #Method to create Observations section
+#Method to create Observations section
     def QoSection(self,obsID):
         #Get data out
         obsID = str(obsID)
@@ -370,9 +396,85 @@ class bmcFPDF(FPDF):
 
         self.ln(5)
 
-    #Use this method to set the color from defined list, 
-    #use "text" for text, "fill" for backround of cells, and "draw" for borders
-    #Default is blue text
+#Method to insert basic paragraph
+    def printParagraph(self,text):
+        self.set_font(family="URW DIN",size=10)
+        self.setColor()
+        self.multi_cell(w=0,text=text)
+        self.ln(3)
+
+#Method to insert a single row of columns
+    def printColumn(self,text,numCols):
+        self.set_font(family="Urw Din",size=10)
+        self.setColor()
+        columnMargins = (numCols-1)*3
+        colWidth = (190-columnMargins)/numCols
+        yTop=self.y
+        lowY=self.x
+        for items in text:
+            self.y=yTop
+            self.multi_cell(w=colWidth,text=items)
+            self.x=self.x+3
+            if self.y > lowY: lowY = self.y
+        self.y = lowY
+        self.ln(3)
+
+#Method to Print 2 Column Table, no header, with Bold on Left
+    def printTwoColumnTable(self,text):
+        fontSize = 10
+        self.set_font(family="Urw Din",size=10)
+        self.setColor()
+        BOLD = FontFace(family="URW DIN Bold")
+        columnWidthLeft = 72.5
+        columnWidthRight = 117.5
+        yTop=self.y
+        lowY=self.x
+        with self.table(
+            first_row_as_headings=False,
+            text_align=("RIGHT","LEFT"),
+            v_align=VAlign.T,
+            line_height=fontSize/2,
+            col_widths=[columnWidthLeft,columnWidthRight],
+            padding=[0,1],
+            borders_layout="NONE"
+            ) as table:
+
+            for dataRow in text:
+                row = table.row()
+                for i, datum in enumerate(dataRow):
+                    row.cell(datum, style=BOLD if i == 0 else None)
+        self.ln(3)
+
+#Method to print a table
+    def printTable(self,text):
+        fontSize=10
+        self.set_font(family="URW DIN",size=fontSize)
+        self.setColor()
+        headingStyle = FontFace(family="URW DIN Bold",fill_color=[165,186,201])
+        with self.table(headings_style=headingStyle,first_row_as_headings=True,text_align="LEFT",v_align=VAlign.T,line_height=fontSize/2) as table:
+            for dataRow in text:
+                row = table.row()
+                for datum in dataRow:
+                    row.cell(datum)
+        self.ln(3)
+
+#Method to print a header
+    def printHeader(self,text):
+        self.set_font(family="URW DIN Bold", size=14)
+        self.setColor()
+        self.multi_cell(w=0,text=text)
+        self.ln(3)
+
+#Method to print a subheader
+    def printSubheader(self,text):
+        self.set_font(family="URW DIN Bold", size=12)
+        self.setColor()
+        self.multi_cell(w=0,text=text)
+        self.ln(3)
+
+#Use this method to set the color from defined list, 
+#use "text" for text, "fill" for backround of cells, and "draw" for borders
+#Default is blue text
     def setColor(self,color = "blue", type = "text"):
         c = [0,0,0]
         if isinstance(color,str):
@@ -407,16 +509,22 @@ class bmcFPDF(FPDF):
                 return
         self.set_text_color(c[0],c[1],c[2])
 
-    #Create report and define the title, subtitle, and description
-    def report(self, title, subtitle, description):
+#Create report and define the title, subtitle, and description
+    def report(self, title, subtitle):
         self.title = title.strip() if isinstance(title, str) else "ERROR, title not found!"
         self.subtitle = subtitle.strip() if isinstance(subtitle, str) else "ERROR, subtitle not found!"
-        self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
+        # self.description = description.strip() if isinstance(description, str) else "ERROR, description not found!"
         self.add_page()
 
-    #One method for a QO Summary
+#method for a QO Summary
     def qoSummaryReport(self,fileName):
+        self.source = "QO"
         #Load JSON file 
+
+        # Page number
+        self.set_font('URW DIN', '', 10)
+        self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", 0, 0, 'R')
+
         self.loadFile(fileName)
 
         #Set document properties
@@ -424,7 +532,7 @@ class bmcFPDF(FPDF):
 
         #Create document and add first page
         self.setDate()
-        self.report("Project Quality Observation Summary","Project Name: "+self.reportName, "test description")
+        self.report("Project Quality Observation Summary","Project Name: "+self.reportName)
 
         #Add description section
         self.descriptionText("desc.txt")
@@ -477,3 +585,109 @@ class bmcFPDF(FPDF):
             if obsCount %2 == 0: self.add_page()
             self.QoSection(k)
             obsCount+=1
+
+#method to create a QR Code
+    def generateQRwithLogo(self,link, outputPath=None, entity="BM", qrSize=300, logoSizeRatio=0.4):
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(link)
+        qr.make(fit=True)
+
+        # Create the QR code image
+        qrImg = qr.make_image(fill_color=(0, 38, 58), back_color="white").convert('RGB')
+
+        # Open the correct logo image
+        if entity == "BM": logo = Image.open("BMstacked.png")
+        elif entity == "BMC": logo = Image.open("BMCstack.png")
+        elif entity == "BMB": logo = Image.open("BMBstack.png")
+
+        # Calculate the logo size based on the ratio and QR code size
+        qr_width, qr_height = qrImg.size
+        logo_size = int(qrSize * logoSizeRatio)
+        logo = logo.resize((logo_size, logo_size))
+
+        # Create a drawing context to draw the empty rectangle
+        draw = ImageDraw.Draw(qrImg)
+
+        # Calculate the position where the logo will be placed (center of the QR code)
+        logo_position = ((qr_width - logo_size) // 2, (qr_height - logo_size) // 2)
+
+        # Draw a white rectangle to make space for the logo
+        white_rect_position = [
+            ((qr_width - logo_size) // 2)-5,
+            ((qr_height - logo_size) // 2)-5,
+            ((qr_width + logo_size) // 2)+5,
+            ((qr_height + logo_size) // 2)+5
+        ]
+        draw.rectangle(white_rect_position, fill="white")
+
+        # Paste the logo onto the QR code
+        qrImg.paste(logo, logo_position, mask=logo)
+
+        if outputPath:
+            # Save the resulting QR code
+            qrImg.save(outputPath)
+            return True
+        
+        #PIL object
+        return qrImg
+
+#method for an API Report
+    def APIReport(self):
+        self.source = "API"
+
+        #Load JSON file, uncomment line below for testing only 
+        self.APILoadFile("api_test.json")
+
+        #Set document properties
+        self.set_author('CQT API')
+
+        #Create document and add first page
+        self.report(title=self.title,subtitle=self.subtitle)
+
+        for item in self.data:
+            # Table
+            if isinstance(item,list) and all(isinstance(i, list) and all(isinstance(j, str) for j in i) for i in item):
+                self.printTable(item)
+            # Column
+            elif isinstance(item,list) and all(isinstance(col, str) for col in item):
+                columns = len(item)
+                self.printColumn(item,columns)
+            # Paragraph
+            elif isinstance(item, str):
+                self.printParagraph(item)
+            # Options
+            elif isinstance(item,dict):
+                alignments = {"L": Align.L, "C": Align.C, "R": Align.R}
+                for k, v in item.items():
+                    if k=="header":
+                        self.printHeader(v)
+                    if k=="subheader":
+                        self.printSubheader(v)
+                    if k=="2cols":
+                        self.printTwoColumnTable(v)
+                    if k=="QRLink":
+                        alignVar = alignments.get(v[1])
+                        self.image(x=alignVar,name=self.generateQRwithLogo(link=v[0]),h=40)
+                        self.ln(3)
+                    elif k=="ImageLink":
+                        alignVar = alignments.get(v[1])
+                        self.image(x=alignVar,name=v[0],h=40)
+                        self.ln(3)
+                    elif k=="ImageB64":
+                        alignVar = alignments.get(v[1])
+                        b64Image = v[0]
+                        imageData = base64.b64decode(b64Image)
+                        imageBytes = io.BytesIO(imageData)
+                        self.image(x=alignVar,name=imageBytes,h=40)
+                        self.ln(3)
+                    elif k=="URLLink":
+                        self.set_font('URW DIN', 'U', 12)
+                        self.setColor("craft")
+                        self.multi_cell(w=0,text=v[1],link=v[0])
+                        self.ln(3)
