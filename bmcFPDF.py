@@ -30,7 +30,7 @@ class bmcFPDF(FPDF):
         self.aiResponse = {}
         self.aiHighlight = None
         self.observations = {}
-        self.highlightedObs = None
+        self.highlightedObs = {}
         self.data  = None
         self.source = None
         self.fileDir = ""
@@ -55,7 +55,7 @@ class bmcFPDF(FPDF):
                 self.aiResponse = data.get("ai_response_frame",{'error':'data not found'})
                 self.aiHighlight = data.get("ai_highlight","ERROR, AI Highlight not found")
                 self.observations = data.get("observations:",{'error':'observations not found'})
-                self.highlightedObs = self.observations.get(self.aiHighlight)
+                self.highlightedObs = self.observations.get(self.aiHighlight,{})
         except Exception as e:
             self.description = str(e)
 
@@ -208,7 +208,7 @@ class bmcFPDF(FPDF):
         self.x=10
         self.set_font('URW DIN', 'U', 10)
         self.setColor("craft")
-        self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link"))
+        self.cell(w=30,h=bodyH,text=self.aiResponse.get("highlighted_observation", "ERROR, Highlighted Observation not found"),border=1,align='C',fill=False,link=self.aiResponse.get("highlight_link",""))
         self.y=top
         self.x=170
         self.setTableBodyStyle()
@@ -251,7 +251,7 @@ class bmcFPDF(FPDF):
         self.y=top
         self.x=10
         self.cell(w=30,h=height1,border=1)
-        obsType = self.highlightedObs.get("Obs Type")
+        obsType = self.highlightedObs.get("Obs Type","")
         if obsType.lower().strip() == "positive":
             self.setColor("green","fill")
         else:
@@ -271,7 +271,7 @@ class bmcFPDF(FPDF):
         #Highlighted QO Image
         imageTopY=self.y
         imageHeight= 277 - imageTopY
-        imageURL = self.highlightedObs.get("image_url")
+        imageURL = self.highlightedObs.get("image_url",None)
         if imageURL is not None: self.image(name=imageURL,h=imageHeight,x=Align.C)
 
 #Method to creat the summary section
@@ -398,7 +398,7 @@ class bmcFPDF(FPDF):
 
 #Method to insert basic paragraph
     def printParagraph(self,text):
-        self.set_font(family="Urw Din",size=10)
+        self.set_font(family="URW DIN",size=10)
         self.setColor()
         self.multi_cell(w=0,text=text)
         self.ln(3)
@@ -419,17 +419,57 @@ class bmcFPDF(FPDF):
         self.y = lowY
         self.ln(3)
 
+#Method to Print 2 Column Table, no header, with Bold on Left
+    def printTwoColumnTable(self,text):
+        fontSize = 10
+        self.set_font(family="Urw Din",size=10)
+        self.setColor()
+        BOLD = FontFace(family="URW DIN Bold")
+        columnWidthLeft = 72.5
+        columnWidthRight = 117.5
+        yTop=self.y
+        lowY=self.x
+        with self.table(
+            first_row_as_headings=False,
+            text_align=("RIGHT","LEFT"),
+            v_align=VAlign.T,
+            line_height=fontSize/2,
+            col_widths=[columnWidthLeft,columnWidthRight],
+            padding=[0,1],
+            borders_layout="NONE"
+            ) as table:
+
+            for dataRow in text:
+                row = table.row()
+                for i, datum in enumerate(dataRow):
+                    row.cell(datum, style=BOLD if i == 0 else None)
+        self.ln(3)
+
 #Method to print a table
     def printTable(self,text):
         fontSize=10
-        self.set_font(family="Urw Din",size=fontSize)
+        self.set_font(family="URW DIN",size=fontSize)
         self.setColor()
-        headingStyle = FontFace(family="URW DIN BOLD",fill_color=[165,186,201])
+        headingStyle = FontFace(family="URW DIN Bold",fill_color=[165,186,201])
         with self.table(headings_style=headingStyle,first_row_as_headings=True,text_align="LEFT",v_align=VAlign.T,line_height=fontSize/2) as table:
             for dataRow in text:
                 row = table.row()
                 for datum in dataRow:
                     row.cell(datum)
+        self.ln(3)
+
+#Method to print a header
+    def printHeader(self,text):
+        self.set_font(family="URW DIN Bold", size=14)
+        self.setColor()
+        self.multi_cell(w=0,text=text)
+        self.ln(3)
+
+#Method to print a subheader
+    def printSubheader(self,text):
+        self.set_font(family="URW DIN Bold", size=12)
+        self.setColor()
+        self.multi_cell(w=0,text=text)
         self.ln(3)
 
 #Use this method to set the color from defined list, 
@@ -602,7 +642,7 @@ class bmcFPDF(FPDF):
         self.source = "API"
 
         #Load JSON file, uncomment line below for testing only 
-        # self.APILoadFile("api_test.json")
+        self.APILoadFile("api_test.json")
 
         #Set document properties
         self.set_author('CQT API')
@@ -611,16 +651,26 @@ class bmcFPDF(FPDF):
         self.report(title=self.title,subtitle=self.subtitle)
 
         for item in self.data:
+            # Table
             if isinstance(item,list) and all(isinstance(i, list) and all(isinstance(j, str) for j in i) for i in item):
                 self.printTable(item)
+            # Column
             elif isinstance(item,list) and all(isinstance(col, str) for col in item):
                 columns = len(item)
                 self.printColumn(item,columns)
+            # Paragraph
             elif isinstance(item, str):
                 self.printParagraph(item)
+            # Options
             elif isinstance(item,dict):
                 alignments = {"L": Align.L, "C": Align.C, "R": Align.R}
                 for k, v in item.items():
+                    if k=="header":
+                        self.printHeader(v)
+                    if k=="subheader":
+                        self.printSubheader(v)
+                    if k=="2cols":
+                        self.printTwoColumnTable(v)
                     if k=="QRLink":
                         alignVar = alignments.get(v[1])
                         self.image(x=alignVar,name=self.generateQRwithLogo(link=v[0]),h=40)
