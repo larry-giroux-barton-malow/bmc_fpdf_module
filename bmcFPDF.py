@@ -669,7 +669,7 @@ class bmcFPDF(FPDF):
                         self.printHeader(v)
                     if k=="subheader":
                         self.printSubheader(v)
-                    if k=="2cols":
+                    if k=="KeyValues":
                         self.printTwoColumnTable(v)
                     if k=="QRLink":
                         alignVar = alignments.get(v[1])

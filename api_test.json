@@ -72,7 +72,7 @@
             ]
         },
         {
-            "2cols": [
+            "KeyValues": [
                 [
                     "Maybe:",
                     "left-side, right side aligned columns"
